@@ -87,11 +87,10 @@ public class SandevistanInputClient implements ClientModInitializer {
             if (down && !prevDown) {
                 ClientPlayNetworking.send(new ActionPayload(1));
             }
-        } else if (down && hasImplant) {
-            ClientSandevistanState.holdTicks++;
-            if (ClientSandevistanState.holdTicks == ClientSandevistanState.HOLD_TICKS) {
-                ClientPlayNetworking.send(new ActionPayload(0));
-            }
+        } else if (down && !prevDown && hasImplant) {
+            // Включение без задержки: сразу при нажатии V (зажимать больше не нужно).
+            ClientSandevistanState.holdTicks = 0;
+            ClientPlayNetworking.send(new ActionPayload(0));
         } else {
             ClientSandevistanState.holdTicks = 0;
         }

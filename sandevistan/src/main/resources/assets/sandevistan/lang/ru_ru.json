@@ -1,7 +1,8 @@
 {
   "item.sandevistan.sandevistan": "Сандевистан",
+  "item.sandevistan.immunosuppressant": "Иммуносупрессор",
   "key.category.sandevistan.main": "Сандевистан",
-  "key.sandevistan.toggle": "Сандевистан (зажать)",
+  "key.sandevistan.toggle": "Сандевистан",
   "key.sandevistan.defrag": "Дефрагментация памяти",
   "key.sandevistan.settings": "Настройки Сандевистана",
   "key.sandevistan.mech": "Вызвать костюм-мех",

@@ -20,10 +20,23 @@ public class ModItems {
             new Item(new Item.Properties().setId(SANDEVISTAN_KEY).stacksTo(1))
     );
 
+    // Иммуносупрессор: снимает одну ячейку киберпсихоза. Получить: творческий режим или /give @s sandevistan:immunosuppressant.
+    public static final ResourceKey<Item> IMMUNOSUPPRESSANT_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("immunosuppressant"));
+
+    public static final Item IMMUNOSUPPRESSANT = Registry.register(
+            BuiltInRegistries.ITEM,
+            IMMUNOSUPPRESSANT_KEY,
+            new ImmunosuppressantItem(new Item.Properties().setId(IMMUNOSUPPRESSANT_KEY).stacksTo(16))
+    );
+
     // Вызывается из Sandevistan.onInitialize(), чтобы класс загрузился и предмет зарегистрировался.
     public static void init() {
         // Имплант во вкладке «Бой» творческого режима.
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT)
-                .register(output -> output.accept(new ItemStack(SANDEVISTAN), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS));
+                .register(output -> {
+                    output.accept(new ItemStack(SANDEVISTAN), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    output.accept(new ItemStack(IMMUNOSUPPRESSANT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                });
     }
 }

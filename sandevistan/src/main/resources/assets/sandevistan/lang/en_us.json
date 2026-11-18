@@ -1,7 +1,8 @@
 {
   "item.sandevistan.sandevistan": "Sandevistan",
+  "item.sandevistan.immunosuppressant": "Immunosuppressant",
   "key.category.sandevistan.main": "Sandevistan",
-  "key.sandevistan.toggle": "Sandevistan (hold)",
+  "key.sandevistan.toggle": "Sandevistan",
   "key.sandevistan.defrag": "Memory defragmentation",
   "key.sandevistan.settings": "Sandevistan settings",
   "key.sandevistan.mech": "Summon mech suit",

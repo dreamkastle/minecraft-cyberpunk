@@ -23,10 +23,13 @@ import net.minecraft.world.entity.LivingEntity;
 /** Серверная логика Сандевистана: включение, 10 секунд работы, выключение, перегрев. */
 public class SandevistanManager {
     public static final int DURATION = 200;          // 10 секунд
-    public static final int OVERHEAT_TICKS = 200;    // 10 секунд штрафа после перегрева
+    public static final int OVERHEAT_TICKS = 260;    // 13 секунд штрафа после перегрева (было 10, +3 с)
     public static final int MANUAL_COOLDOWN = 100;   // 5 секунд после ручного выключения
     public static final int PSYCHOSIS_STREAK = 3;    // перегревов подряд до киберпсихоза
-    public static final int PSYCHOSIS_TICKS = 400;   // 20 секунд приступа
+    public static final int PSYCHOSIS_TICKS = 600;   // 30 секунд приступа (было 20, +10 с)
+    public static final int PSYCHOSIS_OVERHEAT_TICKS = 400; // 20 секунд перегрева ПОСЛЕ приступа (вдвое дольше обычного)
+    /** Во сколько раз длиннее Сандевистан, пока идёт приступ киберпсихоза (после приступа снова обычный). */
+    public static final int PSYCHOSIS_DURATION_MULT = 2;
     private static final double RADIUS = 24.0;
 
     /**
@@ -77,6 +80,32 @@ public class SandevistanManager {
         sync(player, s);
     }
 
+    /** Идёт ли у игрока приступ киберпсихоза прямо сейчас (иммуносупрессор в это время не работает). */
+    public static boolean isInPsychosis(ServerPlayer player) {
+        State s = STATES.get(player.getUUID());
+        return s != null && s.psychosisTicks > 0;
+    }
+
+    /** Сколько ячеек киберпсихоза сейчас занято (0..PSYCHOSIS_STREAK-1). */
+    public static int getStreak(ServerPlayer player) {
+        State s = STATES.get(player.getUUID());
+        return s == null ? 0 : s.streak;
+    }
+
+    /**
+     * Иммуносупрессор: снимает одну ячейку киберпсихоза СРАЗУ, не дожидаясь 3 минут (DEFRAG_WAIT).
+     * Таймер очистки мини-игрой не трогаем. Не работает во время самого приступа.
+     * @return true, если ячейка снята (тогда предмет можно тратить)
+     */
+    public static boolean removeOneCell(ServerPlayer player) {
+        State s = STATES.get(player.getUUID());
+        if (s == null || s.psychosisTicks > 0 || s.streak <= 0) return false;
+        s.streak--;
+        if (s.streak == 0) s.defragTicks = 0;
+        sync(player, s);
+        return true;
+    }
+
     /** Сколько ждать после перегрева (или после прошлой очистки), чтобы очистить одну ячейку: 3 минуты. */
     public static final int DEFRAG_WAIT = 3600;
     /** Сколько тиков таймера очистки можно «простить» (если часы клиента чуть убежали вперёд). */
@@ -105,7 +134,7 @@ public class SandevistanManager {
                 return;
             }
             s.active = true;
-            s.ticksLeft = DURATION;
+            s.ticksLeft = durationFor(s);
             setSpeedBoost(player, true); // + мир замедляется в 20 раз (TimeDilation)
             sync(player, s);
         } else if (action == 1) {
@@ -156,6 +185,14 @@ public class SandevistanManager {
     public static boolean isDamageReduced(ServerPlayer player) {
         State s = STATES.get(player.getUUID());
         return s != null && (s.active || s.psychosisTicks > 0);
+    }
+
+    /**
+     * Длительность Сандевистана для игрока: обычная (DURATION, 10 с) или вдвое длиннее, пока идёт приступ
+     * киберпсихоза. Удвоение действует только внутри приступа и пропадает, когда он кончается.
+     */
+    private static int durationFor(State s) {
+        return s.psychosisTicks > 0 ? DURATION * PSYCHOSIS_DURATION_MULT : DURATION;
     }
 
     private static boolean hasImplant(ServerPlayer player) {
@@ -231,7 +268,7 @@ public class SandevistanManager {
                 continue;
             }
 
-            int age = DURATION - s.ticksLeft;
+            int age = durationFor(s) - s.ticksLeft;
             if (age % 5 == 0) {
                 applyWorldEffects(player, age);
             }
@@ -264,7 +301,7 @@ public class SandevistanManager {
         s.streak = 0; // приступ «сжигает» все ячейки
         s.defragTicks = 0;
         s.psychosisTicks = PSYCHOSIS_TICKS;
-        s.cooldown = PSYCHOSIS_TICKS + OVERHEAT_TICKS;
+        s.cooldown = PSYCHOSIS_TICKS + PSYCHOSIS_OVERHEAT_TICKS;
         s.overheatTicks = 0;
         setOverheatPenalty(player, false);
         setSpeedBoost(player, true); // Сандевистан во время приступа работает сам
@@ -280,8 +317,8 @@ public class SandevistanManager {
         if (s.psychosisTicks <= 0) {
             // Приступ кончился — откат: обычный перегрев.
             setSpeedBoost(player, false);
-            s.overheatTicks = OVERHEAT_TICKS;
-            s.cooldown = OVERHEAT_TICKS;
+            s.overheatTicks = PSYCHOSIS_OVERHEAT_TICKS;
+            s.cooldown = PSYCHOSIS_OVERHEAT_TICKS;
             setOverheatPenalty(player, true);
             sync(player, s);
         } else if (s.psychosisTicks % 20 == 0) {

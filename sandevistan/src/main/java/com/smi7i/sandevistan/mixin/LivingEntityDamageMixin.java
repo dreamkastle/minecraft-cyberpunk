@@ -27,6 +27,10 @@ public abstract class LivingEntityDamageMixin {
                 && com.smi7i.sandevistan.mech.MechDeath.isDying(dying)) {
             return 0.0F; // идёт кат-сцена гибели в костюме
         }
+        // Укол иммуносупрессора: ровно 2 сердца, без Сандевистан-снижения и множителя костюма.
+        if ((Object) this instanceof ServerPlayer && com.smi7i.sandevistan.ImmunosuppressantItem.isInjecting()) {
+            return amount;
+        }
         float result = amount;
         if ((Object) this instanceof ServerPlayer player
                 && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)

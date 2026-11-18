@@ -133,7 +133,7 @@ public class ClientSandevistanState {
         if (psy && !prevPsychosis) {
             // Приступ: заряд выжжен до конца приступа и перегрева после него.
             refillStart = 0.0F;
-            refillTotal = refillLeft = psychosisTicks + SandevistanManager.OVERHEAT_TICKS;
+            refillTotal = refillLeft = psychosisTicks + SandevistanManager.PSYCHOSIS_OVERHEAT_TICKS;
         } else if (prevActive && !active && !psy) {
             // Выключился: восстанавливается за время остывания (перегрев — дольше).
             refillStart = energy;
