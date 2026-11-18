@@ -1,6 +1,10 @@
 package com.smi7i.sandevistan.mixin;
 
+import com.smi7i.sandevistan.HandImplantContainer;
+import com.smi7i.sandevistan.HandImplantSlot;
+import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.ImplantContainer;
+import com.smi7i.sandevistan.ModAttachments;
 import com.smi7i.sandevistan.ImplantSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -18,11 +22,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(InventoryMenu.class)
 public abstract class InventoryMenuMixin {
     @Unique private static final int IMPLANT_SLOT = 46;
+    @Unique private static final int OFFSCREEN = -2000;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void sandevistan$addImplantSlot(Inventory inventory, boolean active, Player owner, CallbackInfo ci) {
         ((AbstractContainerMenuInvoker) (Object) this)
-                .sandevistan$addSlot(new ImplantSlot(new ImplantContainer(owner), 77, 44));
+                .sandevistan$addSlot(new ImplantSlot(new ImplantContainer(owner), OFFSCREEN, OFFSCREEN));
+        // Слоты имплантов живут на отдельной странице «Импланты»; на обычной странице инвентаря они убраны за экран,
+        // а клиентский код (ImplantPage) ставит их на место при переключении страницы.
+        ((AbstractContainerMenuInvoker) (Object) this)
+                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_1), OFFSCREEN, OFFSCREEN));
+        ((AbstractContainerMenuInvoker) (Object) this)
+                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_2), OFFSCREEN, OFFSCREEN));
+        ((AbstractContainerMenuInvoker) (Object) this)
+                .sandevistan$addSlot(new HeadImplantSlot(new HandImplantContainer(owner, ModAttachments.HEAD_IMPLANT), OFFSCREEN, OFFSCREEN));
     }
 
     @Inject(method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
@@ -34,14 +47,27 @@ public abstract class InventoryMenuMixin {
         if (!slot.hasItem()) return;
         ItemStack stack = slot.getItem();
 
-        boolean fromImplant = index == IMPLANT_SLOT;
+        boolean fromImplant = index == IMPLANT_SLOT
+                || index == HandImplantSlot.MENU_INDEX_1 || index == HandImplantSlot.MENU_INDEX_2
+                || index == HeadImplantSlot.MENU_INDEX;
         boolean toImplant = !fromImplant && ImplantSlot.isImplant(stack) && !menu.getSlot(IMPLANT_SLOT).hasItem();
-        if (!fromImplant && !toImplant) return;
+        boolean toHand = !fromImplant && HandImplantSlot.isHandImplant(stack)
+                && (!menu.getSlot(HandImplantSlot.MENU_INDEX_1).hasItem() || !menu.getSlot(HandImplantSlot.MENU_INDEX_2).hasItem());
+        boolean toHead = !fromImplant && HeadImplantSlot.isHeadImplant(stack)
+                && !menu.getSlot(HeadImplantSlot.MENU_INDEX).hasItem();
+        if (!fromImplant && !toImplant && !toHand && !toHead) return;
 
         ItemStack original = stack.copy();
-        boolean moved = fromImplant
-                ? invoker.sandevistan$moveItemStackTo(stack, 9, 45, false)
-                : invoker.sandevistan$moveItemStackTo(stack, IMPLANT_SLOT, IMPLANT_SLOT + 1, false);
+        boolean moved;
+        if (fromImplant) {
+            moved = invoker.sandevistan$moveItemStackTo(stack, 9, 45, false);
+        } else if (toImplant) {
+            moved = invoker.sandevistan$moveItemStackTo(stack, IMPLANT_SLOT, IMPLANT_SLOT + 1, false);
+        } else if (toHand) {
+            moved = invoker.sandevistan$moveItemStackTo(stack, HandImplantSlot.MENU_INDEX_1, HandImplantSlot.MENU_INDEX_2 + 1, false);
+        } else {
+            moved = invoker.sandevistan$moveItemStackTo(stack, HeadImplantSlot.MENU_INDEX, HeadImplantSlot.MENU_INDEX + 1, false);
+        }
         if (!moved) {
             if (fromImplant) cir.setReturnValue(ItemStack.EMPTY);
             return;

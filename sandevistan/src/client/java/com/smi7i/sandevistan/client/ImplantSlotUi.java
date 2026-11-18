@@ -20,8 +20,18 @@ public final class ImplantSlotUi {
 
     private ImplantSlotUi() {}
 
-    /** x, y — левый верхний угол стандартной клетки слота 18×18 (предмет рисуется в x+1, y+1). */
+    /** x, y — левый верхний угол стандартной клетки слота 18×18 (предмет рисуется в x+1, y+1). Слот позвоночника. */
     public static void draw(GuiGraphicsExtractor g, int x, int y, boolean filled, long timeMs) {
+        draw(g, x, y, filled, timeMs, false);
+    }
+
+    /** Тот же стиль; hand = true — пустой слот показывает силуэт руки (слоты имплантов рук). */
+    public static void draw(GuiGraphicsExtractor g, int x, int y, boolean filled, long timeMs, boolean hand) {
+        draw(g, x, y, filled, timeMs, hand ? 1 : 0);
+    }
+
+    /** kind: 0 — позвоночник, 1 — рука, 2 — голова (силуэт в пустом слоте). */
+    public static void draw(GuiGraphicsExtractor g, int x, int y, boolean filled, long timeMs, int kind) {
         float pulse = 0.5F + 0.5F * Mth.sin(timeMs / 380.0F);
         int accent = filled ? GREEN : TEAL;
         int x1 = x + 18, y1 = y + 18;
@@ -44,7 +54,21 @@ public final class ImplantSlotUi {
         g.fill(x + 1, y + 1, x1 - 1, y + 2, HoloUi.argb(0.18F, accent));
 
         // 3. Пустой слот — бледный силуэт позвоночника (подсказка, что сюда вставлять).
-        if (!filled) {
+        if (!filled && kind == 2) {
+            int ghost = HoloUi.argb(0.22F, TEAL);
+            g.fill(x + 5, y + 2, x + 13, y + 10, ghost);            // голова
+            g.fill(x + 8, y + 10, x + 10, y + 13, ghost);           // шея
+            g.fill(x + 3, y + 13, x + 15, y + 16, ghost);           // плечи
+        } else if (!filled && kind == 1) {
+            int ghost = HoloUi.argb(0.22F, TEAL);
+            g.fill(x + 7, y + 12, x + 11, y + 16, ghost);          // предплечье
+            g.fill(x + 5, y + 7, x + 13, y + 12, ghost);            // ладонь
+            g.fill(x + 5, y + 3, x + 6, y + 7, ghost);              // пальцы
+            g.fill(x + 7, y + 2, x + 8, y + 7, ghost);
+            g.fill(x + 9, y + 2, x + 10, y + 7, ghost);
+            g.fill(x + 11, y + 3, x + 12, y + 7, ghost);
+            g.fill(x + 3, y + 8, x + 5, y + 10, ghost);             // большой палец
+        } else if (!filled) {
             int ghost = HoloUi.argb(0.22F, TEAL);
             int cx = x + 9;
             for (int v = 0; v < 5; v++) {

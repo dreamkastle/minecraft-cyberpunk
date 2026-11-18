@@ -17,6 +17,7 @@ public class ImplantInit implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(ActionPayload.TYPE,
                 (payload, context) -> SandevistanManager.onAction(context.player(), payload.action()));
 
+        HandImplants.init(); // импланты рук: бонус урона и скорость
         SandevistanManager.init();
         com.smi7i.sandevistan.mech.MechManager.init(); // костюм-мех: вызов клавишей и посадка по ПКМ
     }

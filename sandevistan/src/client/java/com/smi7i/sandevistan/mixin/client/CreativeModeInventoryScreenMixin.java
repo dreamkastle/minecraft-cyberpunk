@@ -1,5 +1,7 @@
 package com.smi7i.sandevistan.mixin.client;
 
+import com.smi7i.sandevistan.HandImplantSlot;
+import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.ImplantSlot;
 import com.smi7i.sandevistan.client.ImplantSlotUi;
 import java.util.List;
@@ -29,6 +31,21 @@ public abstract class CreativeModeInventoryScreenMixin {
         SlotAccessor slot = (SlotAccessor) slots.get(ImplantSlot.MENU_INDEX);
         slot.sandevistan$setX(ImplantSlot.CREATIVE_X);
         slot.sandevistan$setY(ImplantSlot.CREATIVE_Y);
+        // Слоты имплантов рук: в столбик под слотом Сандевистана.
+        if (slots.size() > HandImplantSlot.MENU_INDEX_2) {
+            SlotAccessor h1 = (SlotAccessor) slots.get(HandImplantSlot.MENU_INDEX_1);
+            h1.sandevistan$setX(HandImplantSlot.CREATIVE_X);
+            h1.sandevistan$setY(HandImplantSlot.CREATIVE_Y_1);
+            SlotAccessor h2 = (SlotAccessor) slots.get(HandImplantSlot.MENU_INDEX_2);
+            h2.sandevistan$setX(HandImplantSlot.CREATIVE_X);
+            h2.sandevistan$setY(HandImplantSlot.CREATIVE_Y_2);
+        }
+        // Слот импланта головы: ниже слотов рук.
+        if (slots.size() > HeadImplantSlot.MENU_INDEX) {
+            SlotAccessor head = (SlotAccessor) slots.get(HeadImplantSlot.MENU_INDEX);
+            head.sandevistan$setX(HeadImplantSlot.CREATIVE_X);
+            head.sandevistan$setY(HeadImplantSlot.CREATIVE_Y);
+        }
     }
 
     @Inject(method = "extractBackground", at = @At("TAIL"))
@@ -40,5 +57,15 @@ public abstract class CreativeModeInventoryScreenMixin {
         AbstractContainerScreenAccessor acc = (AbstractContainerScreenAccessor) (Object) this;
         ImplantSlotUi.draw(graphics, acc.sandevistan$getLeftPos() + ImplantSlot.CREATIVE_X - 1,
                 acc.sandevistan$getTopPos() + ImplantSlot.CREATIVE_Y - 1, filled, System.currentTimeMillis());
+        int[] handIndex = {HandImplantSlot.MENU_INDEX_1, HandImplantSlot.MENU_INDEX_2};
+        int[] handY = {HandImplantSlot.CREATIVE_Y_1, HandImplantSlot.CREATIVE_Y_2};
+        for (int i = 0; i < 2; i++) {
+            boolean handFilled = slots.size() > handIndex[i] && slots.get(handIndex[i]).hasItem();
+            ImplantSlotUi.draw(graphics, acc.sandevistan$getLeftPos() + HandImplantSlot.CREATIVE_X - 1,
+                    acc.sandevistan$getTopPos() + handY[i] - 1, handFilled, System.currentTimeMillis(), true);
+        }
+        boolean headFilled = slots.size() > HeadImplantSlot.MENU_INDEX && slots.get(HeadImplantSlot.MENU_INDEX).hasItem();
+        ImplantSlotUi.draw(graphics, acc.sandevistan$getLeftPos() + HeadImplantSlot.CREATIVE_X - 1,
+                acc.sandevistan$getTopPos() + HeadImplantSlot.CREATIVE_Y - 1, headFilled, System.currentTimeMillis(), 2);
     }
 }

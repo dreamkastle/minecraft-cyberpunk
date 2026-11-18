@@ -1,5 +1,7 @@
 package com.smi7i.sandevistan.mixin;
 
+import com.smi7i.sandevistan.HandImplantSlot;
+import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.ImplantSlot;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,14 +24,20 @@ public abstract class ServerCreativeImplantMixin {
     @Inject(method = "handleSetCreativeModeSlot", cancellable = true, at = @At(value = "INVOKE", shift = At.Shift.AFTER,
             target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V"))
     private void sandevistan$creativeImplantSlot(ServerboundSetCreativeModeSlotPacket packet, CallbackInfo ci) {
-        if (packet.slotNum() != ImplantSlot.MENU_INDEX) return;
+        int index = packet.slotNum();
+        boolean main = index == ImplantSlot.MENU_INDEX;
+        boolean hand = index == HandImplantSlot.MENU_INDEX_1 || index == HandImplantSlot.MENU_INDEX_2;
+        boolean head = index == HeadImplantSlot.MENU_INDEX;
+        if (!main && !hand && !head) return;
         ci.cancel();
         if (!player.hasInfiniteMaterials()) return;
         ItemStack stack = packet.itemStack();
-        if (!stack.isEmpty() && (!ImplantSlot.isImplant(stack) || stack.getCount() > 1)) return;
-        if (player.inventoryMenu.slots.size() <= ImplantSlot.MENU_INDEX) return;
-        player.inventoryMenu.getSlot(ImplantSlot.MENU_INDEX).setByPlayer(stack);
-        player.inventoryMenu.setRemoteSlot(ImplantSlot.MENU_INDEX, stack);
+        boolean valid = main ? ImplantSlot.isImplant(stack)
+                : head ? HeadImplantSlot.isHeadImplant(stack) : HandImplantSlot.isHandImplant(stack);
+        if (!stack.isEmpty() && (!valid || stack.getCount() > 1)) return;
+        if (player.inventoryMenu.slots.size() <= index) return;
+        player.inventoryMenu.getSlot(index).setByPlayer(stack);
+        player.inventoryMenu.setRemoteSlot(index, stack);
         player.inventoryMenu.broadcastChanges();
     }
 }

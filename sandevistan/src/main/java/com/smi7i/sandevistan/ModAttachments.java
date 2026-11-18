@@ -17,6 +17,34 @@ public class ModAttachments {
                     .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
     );
 
+    /** Два слота имплантов рук (одинаковые, левый и правый). Как и основной имплант, сохраняются после смерти. */
+    public static final AttachmentType<ItemStack> HAND_IMPLANT_1 = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "hand_implant_1"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+    public static final AttachmentType<ItemStack> HAND_IMPLANT_2 = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "hand_implant_2"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
+    /** Слот импланта головы (нейро интерфейс). Синхронизируется со всеми: клиент должен видеть интерфейс у других игроков. */
+    public static final AttachmentType<ItemStack> HEAD_IMPLANT = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "head_implant"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
     /** Игрок «стал» костюмом-мехом (сел в него по ПКМ). Видно всем — по этому флагу рисуется костюм и прячутся руки/ноги. */
     public static final AttachmentType<Boolean> MECH = AttachmentRegistry.create(
             Identifier.fromNamespaceAndPath("sandevistan", "mech"),

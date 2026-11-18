@@ -32,6 +32,12 @@ public abstract class LivingEntityDamageMixin {
             return amount;
         }
         float result = amount;
+        // Имплант руки: удар рукой игрока наносит на 2 сердца больше. Бонус добавляем до брони цели — она его уменьшает.
+        if (amount > 0.0F && source.is(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK)
+                && source.getEntity() instanceof ServerPlayer attacker
+                && com.smi7i.sandevistan.HandImplants.hasAny(attacker)) {
+            result += com.smi7i.sandevistan.HandImplants.BONUS_DAMAGE;
+        }
         if ((Object) this instanceof ServerPlayer player
                 && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
                 && SandevistanManager.isDamageReduced(player)) {

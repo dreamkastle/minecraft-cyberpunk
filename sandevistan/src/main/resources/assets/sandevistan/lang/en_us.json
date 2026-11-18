@@ -1,6 +1,9 @@
 {
   "item.sandevistan.sandevistan": "Sandevistan",
   "item.sandevistan.immunosuppressant": "Immunosuppressant",
+  "item.sandevistan.hand_implant": "Hand Implant",
+  "item.sandevistan.neuro_interface": "Neural Interface",
+  "key.sandevistan.neuro": "Neural Interface (target list)",
   "key.category.sandevistan.main": "Sandevistan",
   "key.sandevistan.toggle": "Sandevistan",
   "key.sandevistan.defrag": "Memory defragmentation",
