@@ -1,0 +1,7 @@
+{
+  "parent": "sandevistan:item/sandevistan",
+  "textures": {
+    "0": "sandevistan:item/sandevistan_glow",
+    "particle": "sandevistan:item/sandevistan_glow"
+  }
+}

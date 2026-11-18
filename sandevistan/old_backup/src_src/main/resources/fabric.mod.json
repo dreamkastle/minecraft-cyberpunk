@@ -1,0 +1,40 @@
+{
+    "schemaVersion": 1,
+    "id": "sandevistan",
+    "version": "${version}",
+    "name": "Sandevistan",
+    "description": "Sandevistan implant mod.",
+    "authors": [
+       "smi7i"
+    ],
+    "contact": {
+       "homepage": "https://fabricmc.net/",
+       "sources": "https://github.com/FabricMC/fabric-example-mod"
+    },
+    "license": "CC0-1.0",
+    "icon": "assets/sandevistan/icon.png",
+    "environment": "*",
+    "entrypoints": {
+       "main": [
+          "com.smi7i.sandevistan.Sandevistan",
+          "com.smi7i.sandevistan.ImplantInit"
+       ],
+       "client": [
+          "com.smi7i.sandevistan.client.SandevistanClient",
+          "com.smi7i.sandevistan.client.SandevistanInputClient"
+       ]
+    },
+    "mixins": [
+       "sandevistan.mixins.json",
+       {
+          "config": "sandevistan.client.mixins.json",
+          "environment": "client"
+       }
+    ],
+    "depends": {
+       "fabricloader": ">=0.20.1",
+       "minecraft": ">=26.2",
+       "java": ">=25",
+       "fabric-api": "*"
+    }
+}

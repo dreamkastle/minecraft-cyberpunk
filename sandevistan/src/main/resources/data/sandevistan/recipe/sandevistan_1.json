@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NBN",
+    "NDN",
+    "NEN"
+  ],
+  "key": {
+    "N": "minecraft:netherite_ingot",
+    "B": "minecraft:beacon",
+    "D": "minecraft:dragon_egg",
+    "E": "minecraft:emerald"
+  },
+  "result": {
+    "id": "sandevistan:sandevistan",
+    "count": 1
+  }
+}

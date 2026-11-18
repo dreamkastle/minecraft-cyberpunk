@@ -1,0 +1,20 @@
+{
+  "item.sandevistan.sandevistan": "Сандевистан",
+  "key.category.sandevistan.main": "Сандевистан",
+  "key.sandevistan.toggle": "Сандевистан (зажать)",
+  "key.sandevistan.defrag": "Дефрагментация памяти",
+  "key.sandevistan.settings": "Настройки Сандевистана",
+  "key.sandevistan.mech": "Вызвать костюм-мех",
+  "key.sandevistan.mech_attack": "Костюм: атака",
+  "key.sandevistan.mech_dash": "Костюм: рывок",
+  "key.sandevistan.mech_vortex": "Костюм: вихрь",
+  "key.sandevistan.mech_meteor": "Костюм: метеор (держать)",
+  "key.sandevistan.mech_singularity": "Костюм: сингулярность",
+  "key.sandevistan.mech_push": "Костюм: магнит",
+  "block.sandevistan.sky_shard": "Осколок неба",
+  "block.sandevistan.sky_shard_flip": "Осколок неба",
+  "key.sandevistan.mech_showdown": "Костюм: последний бой (полная шкала)",
+  "key.sandevistan.mech_eject": "Костюм: снять (смерть, зажать)",
+  "key.sandevistan.mech_inject": "Костюм: укол из шприцов (до 1 минуты)",
+  "entity.sandevistan.mech_suit": "Костюм-мех"
+}

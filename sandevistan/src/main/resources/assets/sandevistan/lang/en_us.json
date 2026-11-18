@@ -1,0 +1,20 @@
+{
+  "item.sandevistan.sandevistan": "Sandevistan",
+  "key.category.sandevistan.main": "Sandevistan",
+  "key.sandevistan.toggle": "Sandevistan (hold)",
+  "key.sandevistan.defrag": "Memory defragmentation",
+  "key.sandevistan.settings": "Sandevistan settings",
+  "key.sandevistan.mech": "Summon mech suit",
+  "key.sandevistan.mech_attack": "Mech: attack",
+  "key.sandevistan.mech_dash": "Mech: dash",
+  "key.sandevistan.mech_vortex": "Mech: vortex",
+  "key.sandevistan.mech_meteor": "Mech: meteor (hold)",
+  "key.sandevistan.mech_singularity": "Mech: singularity",
+  "key.sandevistan.mech_push": "Mech: magnet",
+  "block.sandevistan.sky_shard": "Sky Shard",
+  "block.sandevistan.sky_shard_flip": "Sky Shard",
+  "key.sandevistan.mech_showdown": "Mech: one last showdown (full gauge)",
+  "key.sandevistan.mech_eject": "Mech: eject (fatal, hold)",
+  "key.sandevistan.mech_inject": "Mech: inject from syringes (refill to 1 min)",
+  "entity.sandevistan.mech_suit": "Mech suit"
+}

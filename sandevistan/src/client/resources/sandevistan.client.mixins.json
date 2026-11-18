@@ -1,0 +1,40 @@
+{
+    "required": true,
+    "package": "com.smi7i.sandevistan.mixin.client",
+    "compatibilityLevel": "JAVA_25",
+    "client": [
+    "GuiDeathScreenMixin",
+       "AbstractContainerScreenAccessor",
+       "InventoryScreenMixin",
+       "CameraMixin",
+       "AbstractClientPlayerMixin",
+       "LivingEntityRendererMixin",
+       "AvatarRendererMixin",
+       "GameRendererMixin",
+       "ClientInputAccessor",
+       "KeyboardInputMixin",
+       "MouseHandlerMixin",
+       "MinecraftMixin",
+       "AvatarRendererExtractMixin",
+       "ItemStackRenderStateAccessor",
+       "LayerRenderStateInvoker",
+       "LevelExtractorMixin",
+       "LocalPlayerMixin",
+       "InterpolationHandlerMixin",
+       "SlotAccessor",
+       "CreativeModeInventoryScreenMixin",
+       "SoundEngineMixin",
+       "MultiPlayerGameModeMixin",
+       "ParticleEngineMixin",
+       "ConnectionMixin",
+       "PlayerModelMechMixin",
+       "ItemInHandRendererMixin",
+       "AvatarRendererMechLiftMixin"
+    ],
+    "injectors": {
+       "defaultRequire": 1
+    },
+    "overwrites": {
+       "requireAnnotations": true
+    }
+}

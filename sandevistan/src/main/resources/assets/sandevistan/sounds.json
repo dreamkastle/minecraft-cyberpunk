@@ -1,0 +1,515 @@
+{
+    "start":  {
+                  "sounds":  [
+                                 {
+                                     "name":  "sandevistan:start"
+                                 }
+                             ]
+              },
+    "exit":  {
+                 "sounds":  [
+                                {
+                                    "name":  "sandevistan:exit"
+                                }
+                            ]
+             },
+    "hum":  {
+                "sounds":  [
+                               {
+                                   "name":  "sandevistan:hum",
+                                   "stream":  true
+                               }
+                           ]
+            },
+    "psychosis_start":  {
+                            "sounds":  [
+                                           {
+                                               "name":  "sandevistan:psychosis_start"
+                                           }
+                                       ]
+                        },
+    "psychosis_distortion":  {
+                                 "sounds":  [
+                                                {
+                                                    "name":  "sandevistan:psychosis_distortion"
+                                                }
+                                            ]
+                             },
+    "mech_step":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:mech_step1",
+                                         "volume":  0.56
+                                     },
+                                     {
+                                         "name":  "sandevistan:mech_step2",
+                                         "volume":  0.56
+                                     },
+                                     {
+                                         "name":  "sandevistan:mech_step3",
+                                         "volume":  0.56
+                                     },
+                                     {
+                                         "name":  "sandevistan:mech_step4",
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "mech_hit1":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:mech_hit1",
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "mech_hit2":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:mech_hit2",
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "mech_slam":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:mech_slam",
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "mech_land":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:mech_land",
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "mech_inject":  {
+                        "sounds":  [
+                                       {
+                                           "name":  "sandevistan:mech_inject",
+                                           "volume":  0.56
+                                       }
+                                   ]
+                    },
+    "mech_equip":  {
+                       "sounds":  [
+                                      {
+                                          "name":  "sandevistan:mech_equip",
+                                          "volume":  0.56
+                                      }
+                                  ]
+                   },
+    "mech_dash":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:mech_dash",
+                                         "volume":  0.56
+                                     },
+                                     {
+                                         "name":  "sandevistan:mech_dash2",
+                                         "volume":  0.56
+                                     },
+                                     {
+                                         "name":  "sandevistan:mech_dash3",
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "mech_call_ring":  {
+                           "sounds":  [
+                                          {
+                                              "name":  "sandevistan:mech_call_ring"
+                                          }
+                                      ]
+                       },
+    "mech_call_voice":  {
+                            "sounds":  [
+                                           {
+                                               "name":  "sandevistan:mech_call_voice"
+                                           }
+                                       ]
+                        },
+    "mech_knock":  {
+                       "sounds":  [
+                                      {
+                                          "name":  "sandevistan:mech_knock",
+                                          "volume":  0.56
+                                      }
+                                  ]
+                   },
+    "mech_knock2":  {
+                        "sounds":  [
+                                       {
+                                           "name":  "sandevistan:mech_knock2",
+                                           "volume":  0.56
+                                       }
+                                   ]
+                    },
+    "mech_grab_windup":  {
+                             "sounds":  [
+                                            {
+                                                "name":  "sandevistan:mech_grab_windup",
+                                                "volume":  0.56
+                                            }
+                                        ]
+                         },
+    "mech_grab":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:mech_grab",
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "mech_vortex":  {
+                        "sounds":  [
+                                       {
+                                           "name":  "sandevistan:mech_vortex",
+                                           "volume":  0.56
+                                       }
+                                   ]
+                    },
+    "mech_showdown":  {
+                          "sounds":  [
+                                         {
+                                             "name":  "sandevistan:mech_showdown",
+                                             "stream":  true
+                                         }
+                                     ]
+                      },
+    "mech_sing_charge":  {
+                             "sounds":  [
+                                            {
+                                                "name":  "sandevistan:mech_sing_charge",
+                                                "volume":  0.56
+                                            }
+                                        ]
+                         },
+    "mech_sing_fire":  {
+                           "sounds":  [
+                                          {
+                                              "name":  "sandevistan:mech_sing_fire",
+                                              "volume":  0.56
+                                          }
+                                      ]
+                       },
+    "mech_hole":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:mech_hole",
+                                         "stream":  true,
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "mech_supernova":  {
+                           "sounds":  [
+                                          {
+                                              "name":  "sandevistan:mech_supernova",
+                                              "stream":  true,
+                                              "volume":  0.56
+                                          }
+                                      ]
+                       },
+    "boom_punch":  {
+                       "sounds":  [
+                                      {
+                                          "name":  "sandevistan:boom_punch1",
+                                          "volume":  0.56
+                                      },
+                                      {
+                                          "name":  "sandevistan:boom_punch2",
+                                          "volume":  0.56
+                                      },
+                                      {
+                                          "name":  "sandevistan:boom_punch3",
+                                          "volume":  0.56
+                                      },
+                                      {
+                                          "name":  "sandevistan:boom_punch4",
+                                          "volume":  0.56
+                                      }
+                                  ]
+                   },
+    "boom_collision":  {
+                           "sounds":  [
+                                          {
+                                              "name":  "sandevistan:boom_collision1",
+                                              "volume":  0.56
+                                          },
+                                          {
+                                              "name":  "sandevistan:boom_collision2",
+                                              "volume":  0.56
+                                          },
+                                          {
+                                              "name":  "sandevistan:boom_collision3",
+                                              "volume":  0.56
+                                          },
+                                          {
+                                              "name":  "sandevistan:boom_collision4",
+                                              "volume":  0.56
+                                          }
+                                      ]
+                       },
+    "boom_whoosh":  {
+                        "sounds":  [
+                                       {
+                                           "name":  "sandevistan:boom_whoosh1",
+                                           "volume":  0.56
+                                       },
+                                       {
+                                           "name":  "sandevistan:boom_whoosh2",
+                                           "volume":  0.56
+                                       },
+                                       {
+                                           "name":  "sandevistan:boom_whoosh3",
+                                           "volume":  0.56
+                                       },
+                                       {
+                                           "name":  "sandevistan:boom_whoosh4",
+                                           "volume":  0.56
+                                       }
+                                   ]
+                    },
+    "boom_motion":  {
+                        "sounds":  [
+                                       {
+                                           "name":  "sandevistan:boom_motion1",
+                                           "volume":  0.56
+                                       },
+                                       {
+                                           "name":  "sandevistan:boom_motion2",
+                                           "volume":  0.56
+                                       },
+                                       {
+                                           "name":  "sandevistan:boom_motion3",
+                                           "volume":  0.56
+                                       },
+                                       {
+                                           "name":  "sandevistan:boom_motion4",
+                                           "volume":  0.56
+                                       }
+                                   ]
+                    },
+    "boom_wind":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:boom_wind",
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "boom_thruster":  {
+                          "sounds":  [
+                                         {
+                                             "name":  "sandevistan:boom_thruster",
+                                             "volume":  0.56
+                                         }
+                                     ]
+                      },
+    "mech_flatline":  {
+                          "sounds":  [
+                                         {
+                                             "name":  "sandevistan:mech_flatline",
+                                             "volume":  0.56
+                                         }
+                                     ]
+                      },
+    "mech_meteor_launch":  {
+                               "sounds":  [
+                                              {
+                                                  "name":  "sandevistan:mech_meteor_launch",
+                                                  "volume":  0.56
+                                              }
+                                          ]
+                           },
+    "mech_meteor_slam":  {
+                             "sounds":  [
+                                            {
+                                                "name":  "sandevistan:mech_meteor_slam",
+                                                "volume":  0.56
+                                            }
+                                        ]
+                         },
+    "mech_showdown_song":  {
+                               "sounds":  [
+                                              {
+                                                  "name":  "sandevistan:mech_showdown_song",
+                                                  "stream":  true
+                                              }
+                                          ]
+                           },
+    "mech_hollow":  {
+                        "sounds":  [
+                                       {
+                                           "name":  "sandevistan:mech_hollow",
+                                           "volume":  0.56
+                                       }
+                                   ]
+                    },
+    "boom_land":  {
+                      "sounds":  [
+                                     {
+                                         "name":  "sandevistan:boom_land1",
+                                         "volume":  0.56
+                                     },
+                                     {
+                                         "name":  "sandevistan:boom_land2",
+                                         "volume":  0.56
+                                     },
+                                     {
+                                         "name":  "sandevistan:boom_land3",
+                                         "volume":  0.56
+                                     },
+                                     {
+                                         "name":  "sandevistan:boom_land4",
+                                         "volume":  0.56
+                                     }
+                                 ]
+                  },
+    "boom_landfall":  {
+                          "sounds":  [
+                                         {
+                                             "name":  "sandevistan:boom_landfall1",
+                                             "volume":  0.56
+                                         },
+                                         {
+                                             "name":  "sandevistan:boom_landfall2",
+                                             "volume":  0.56
+                                         },
+                                         {
+                                             "name":  "sandevistan:boom_landfall3",
+                                             "volume":  0.56
+                                         },
+                                         {
+                                             "name":  "sandevistan:boom_landfall4",
+                                             "volume":  0.56
+                                         }
+                                     ]
+                      },
+    "boom_sonic":  {
+                       "sounds":  [
+                                      {
+                                          "name":  "sandevistan:boom_sonic1",
+                                          "volume":  0.56
+                                      },
+                                      {
+                                          "name":  "sandevistan:boom_sonic2",
+                                          "volume":  0.56
+                                      },
+                                      {
+                                          "name":  "sandevistan:boom_sonic3",
+                                          "volume":  0.56
+                                      },
+                                      {
+                                          "name":  "sandevistan:boom_sonic4",
+                                          "volume":  0.56
+                                      }
+                                  ]
+                   },
+    "boom_takeoff":  {
+                         "sounds":  [
+                                        {
+                                            "name":  "sandevistan:boom_takeoff1",
+                                            "volume":  0.56
+                                        },
+                                        {
+                                            "name":  "sandevistan:boom_takeoff2",
+                                            "volume":  0.56
+                                        },
+                                        {
+                                            "name":  "sandevistan:boom_takeoff3",
+                                            "volume":  0.56
+                                        },
+                                        {
+                                            "name":  "sandevistan:boom_takeoff4",
+                                            "volume":  0.56
+                                        }
+                                    ]
+                     },
+    "boom_flash":  {
+                       "sounds":  [
+                                      {
+                                          "name":  "sandevistan:boom_flash1",
+                                          "volume":  0.56
+                                      },
+                                      {
+                                          "name":  "sandevistan:boom_flash2",
+                                          "volume":  0.56
+                                      },
+                                      {
+                                          "name":  "sandevistan:boom_flash3",
+                                          "volume":  0.56
+                                      },
+                                      {
+                                          "name":  "sandevistan:boom_flash4",
+                                          "volume":  0.56
+                                      }
+                                  ]
+                   },
+    "boom_zap":  {
+                     "sounds":  [
+                                    {
+                                        "name":  "sandevistan:boom_zap1",
+                                        "volume":  0.56
+                                    },
+                                    {
+                                        "name":  "sandevistan:boom_zap2",
+                                        "volume":  0.56
+                                    },
+                                    {
+                                        "name":  "sandevistan:boom_zap3",
+                                        "volume":  0.56
+                                    },
+                                    {
+                                        "name":  "sandevistan:boom_zap4",
+                                        "volume":  0.56
+                                    }
+                                ]
+                 },
+    "boom_sparkle":  {
+                         "sounds":  [
+                                        {
+                                            "name":  "sandevistan:boom_sparkle1",
+                                            "volume":  0.56
+                                        },
+                                        {
+                                            "name":  "sandevistan:boom_sparkle2",
+                                            "volume":  0.56
+                                        },
+                                        {
+                                            "name":  "sandevistan:boom_sparkle3",
+                                            "volume":  0.56
+                                        },
+                                        {
+                                            "name":  "sandevistan:boom_sparkle4",
+                                            "volume":  0.56
+                                        }
+                                    ]
+                     },
+    "boom_orbital":  {
+                         "sounds":  [
+                                        {
+                                            "name":  "sandevistan:boom_orbital1",
+                                            "volume":  0.56
+                                        },
+                                        {
+                                            "name":  "sandevistan:boom_orbital2",
+                                            "volume":  0.56
+                                        },
+                                        {
+                                            "name":  "sandevistan:boom_orbital3",
+                                            "volume":  0.56
+                                        },
+                                        {
+                                            "name":  "sandevistan:boom_orbital4",
+                                            "volume":  0.56
+                                        }
+                                    ]
+                     },
+    "mech_push": { "sounds": [ { "name": "sandevistan:mech_push", "volume":  0.56 } ] }
+}

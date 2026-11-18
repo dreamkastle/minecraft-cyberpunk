@@ -1,0 +1,1 @@
+{ "parent": "minecraft:block/cube_bottom_top", "textures": { "top": "sandevistan:block/sky_shard_night", "bottom": "sandevistan:block/sky_shard_day", "side": "sandevistan:block/sky_shard_side" } }
