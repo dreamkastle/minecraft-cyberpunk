@@ -29,7 +29,6 @@ public class SandevistanBars {
     private static final int RED = 0xFF3040;
     private static final int RED_DARK = 0x8A1020;
     /** Цвет голографической панели под шкалами. */
-    private static final int PANEL_COLOR = 0x2AE0C0;
 
     public static void init() {
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
@@ -68,7 +67,7 @@ public class SandevistanBars {
             HoloUi.begin(graphics, MARGIN_X, psyY, HoloUi.TILT);
             try {
                 HoloUi.panel(graphics, MARGIN_X - 6, sandY - 15, MARGIN_X + contentW + 6, psyY + BAR_HEIGHT + 6 + extra,
-                        PANEL_COLOR, alpha * 0.8F);
+                        HoloTheme.accent(), alpha * 0.8F);
                 drawSandevistan(graphics, font, MARGIN_X, sandY, partial, time, alpha);
                 drawPsychosis(graphics, font, MARGIN_X, psyY, time, alpha);
                 if (defrag != null) {

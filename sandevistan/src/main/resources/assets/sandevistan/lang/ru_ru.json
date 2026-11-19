@@ -1,6 +1,13 @@
 {
   "item.sandevistan.sandevistan": "Сандевистан",
   "item.sandevistan.immunosuppressant": "Иммуносупрессор",
+  "item.sandevistan.hand_implant": "Имплант руки",
+  "item.sandevistan.neuro_interface": "Нейро интерфейс",
+  "item.sandevistan.mech_remote": "Пульт костюма",
+  "item.sandevistan.chip_overtime": "Чип «Овертайм»",
+  "item.sandevistan.chip_hack": "Чип «Взлом»",
+  "key.sandevistan.chip": "Чип нейро интерфейса (активировать)",
+  "key.sandevistan.neuro": "Нейро интерфейс (список целей)",
   "key.category.sandevistan.main": "Сандевистан",
   "key.sandevistan.toggle": "Сандевистан",
   "key.sandevistan.defrag": "Дефрагментация памяти",

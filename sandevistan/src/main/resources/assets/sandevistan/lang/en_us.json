@@ -1,6 +1,13 @@
 {
   "item.sandevistan.sandevistan": "Sandevistan",
   "item.sandevistan.immunosuppressant": "Immunosuppressant",
+  "item.sandevistan.hand_implant": "Hand Implant",
+  "item.sandevistan.neuro_interface": "Neural Interface",
+  "item.sandevistan.mech_remote": "Suit Remote",
+  "item.sandevistan.chip_overtime": "Overtime Chip",
+  "item.sandevistan.chip_hack": "Hack Chip",
+  "key.sandevistan.chip": "Neural Interface Chip (activate)",
+  "key.sandevistan.neuro": "Neural Interface (target list)",
   "key.category.sandevistan.main": "Sandevistan",
   "key.sandevistan.toggle": "Sandevistan",
   "key.sandevistan.defrag": "Memory defragmentation",

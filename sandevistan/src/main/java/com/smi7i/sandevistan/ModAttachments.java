@@ -3,6 +3,7 @@ package com.smi7i.sandevistan;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
@@ -15,6 +16,52 @@ public class ModAttachments {
                     .copyOnDeath()
                     // Видно всем игрокам рядом: имплант рисуется у владельца на спине.
                     .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
+    /** Два слота имплантов рук (одинаковые, левый и правый). Как и основной имплант, сохраняются после смерти. */
+    public static final AttachmentType<ItemStack> HAND_IMPLANT_1 = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "hand_implant_1"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+    public static final AttachmentType<ItemStack> HAND_IMPLANT_2 = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "hand_implant_2"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
+    /** Слот импланта головы (нейро интерфейс). Синхронизируется со всеми: клиент должен видеть интерфейс у других игроков. */
+    public static final AttachmentType<ItemStack> HEAD_IMPLANT = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "head_implant"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
+    /** Слот чипа нейро интерфейса (чип работает, только пока интерфейс надет в слот головы). */
+    public static final AttachmentType<ItemStack> CHIP = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "chip"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
+    /** Игровое время (тики), до которого импланты игрока отключены взломом. Не сохраняется, видно всем клиентам. */
+    public static final AttachmentType<Long> HACKED_UNTIL = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "hacked_until"),
+            builder -> builder
+                    .initializer(() -> 0L)
+                    .syncWith(ByteBufCodecs.VAR_LONG, AttachmentSyncPredicate.all())
     );
 
     /** Игрок «стал» костюмом-мехом (сел в него по ПКМ). Видно всем — по этому флагу рисуется костюм и прячутся руки/ноги. */

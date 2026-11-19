@@ -24,7 +24,6 @@ import org.lwjgl.glfw.GLFW;
 
 /** Клиент костюма-меха: клавиша-способность, отрисовщик, слой на игроке, подсказка «[ПКМ]», размеры игроков. */
 public final class MechClient {
-    public static KeyMapping SUMMON;
     /** Способность «шприц»: укол жидкости из баллонов костюма, +30 секунд жизни (5 уколов). */
     public static KeyMapping INJECT;
     /** Способность «атака» костюма: комбо из трёх ударов. */
@@ -204,8 +203,6 @@ public final class MechClient {
     private MechClient() {}
 
     public static void init(KeyMapping.Category category) {
-        SUMMON = KeyMappingHelper.registerKeyMapping(
-                new KeyMapping("key.sandevistan.mech", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, category));
         INJECT = KeyMappingHelper.registerKeyMapping(
                 new KeyMapping("key.sandevistan.mech_inject", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, category));
         ATTACK = KeyMappingHelper.registerKeyMapping(
@@ -278,11 +275,7 @@ public final class MechClient {
             LAST.clear();
             return;
         }
-        while (SUMMON.consumeClick()) {
-            if (ModAttachments.hasMech(mc.player)) continue;
-            if (!com.smi7i.sandevistan.ImplantSlot.isImplant(mc.player.getAttachedOrCreate(ModAttachments.IMPLANT))) continue; // без Сандевистана — ничего
-            if (MechLifeHud.summonCd <= 0) ClientPlayNetworking.send(new SummonMechPayload());
-        }
+        // Вызов костюма делает предмет «Пульт костюма» (ПКМ); клавиши B больше нет.
         while (ATTACK.consumeClick()) {
             if (ModAttachments.hasMech(mc.player) && !localAttacking() && MechLifeHud.attackCd <= 0) {
                 ClientPlayNetworking.send(new com.smi7i.sandevistan.mech.MechAttackPayload());

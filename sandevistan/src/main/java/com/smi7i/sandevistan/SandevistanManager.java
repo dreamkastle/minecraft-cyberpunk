@@ -30,6 +30,14 @@ public class SandevistanManager {
     public static final int PSYCHOSIS_OVERHEAT_TICKS = 400; // 20 секунд перегрева ПОСЛЕ приступа (вдвое дольше обычного)
     /** Во сколько раз длиннее Сандевистан, пока идёт приступ киберпсихоза (после приступа снова обычный). */
     public static final int PSYCHOSIS_DURATION_MULT = 2;
+    /** Чип «Овертайм»: работает 6 секунд, потом перезаряжается 2 минуты (отсчёт с конца работы). */
+    public static final int CHIP_ACTIVE_TICKS = 120;
+    public static final int CHIP_COOLDOWN_TICKS = 2400;
+    /** Штраф в конце овертайма: столько полосок киберпсихоза и столько тиков без Сандевистана (30 секунд). */
+    public static final int OVERTIME_STREAK = 2;
+    public static final int OVERTIME_LOCK_TICKS = 600;
+    /** Чип «Взлом»: перезарядка 1 минута 30 секунд, отсчёт с начала попытки взлома. */
+    public static final int HACK_COOLDOWN_TICKS = 1800;
     private static final double RADIUS = 24.0;
 
     /**
@@ -63,6 +71,14 @@ public class SandevistanManager {
         int psychosisTicks;
         /** Сколько ещё ждать, чтобы очистить одну ячейку киберпсихоза мини-игрой «Дефрагментация памяти». */
         int defragTicks;
+        /** Сколько ещё тиков работает чип нейро интерфейса и сколько он перезаряжается. */
+        int chipTicks;
+        int chipCooldown;
+        /** Перезарядка чипа «Взлом» и последний замеченный чип (чтобы послать клиенту его перезарядку при смене). */
+        int hackCooldown;
+        int lastChip;
+        /** Овертайм: срок Сандевистана вышел, но он продолжает работать, пока работает чип. */
+        boolean overtime;
         /** Включён способностью костюма («Последний бой»): без импланта, без перегрева, выключить вручную нельзя. */
         boolean forced;
     }
@@ -137,8 +153,14 @@ public class SandevistanManager {
             s.ticksLeft = durationFor(s);
             setSpeedBoost(player, true); // + мир замедляется в 20 раз (TimeDilation)
             sync(player, s);
+        } else if (action == 3) {
+            activateChip(player, s);
         } else if (action == 1) {
             if (!s.active || s.psychosisTicks > 0 || s.forced) return;
+            if (s.overtime) { // выключили в овертайме — штраф берётся сразу
+                overtimePenalty(player, s);
+                return;
+            }
             s.active = false;
             // Ячейки киберпсихоза ручное выключение НЕ сбрасывает — только мини-игра (action 2).
             s.cooldown = MANUAL_COOLDOWN;
@@ -196,7 +218,8 @@ public class SandevistanManager {
     }
 
     private static boolean hasImplant(ServerPlayer player) {
-        return ImplantSlot.isImplant(player.getAttachedOrCreate(ModAttachments.IMPLANT));
+        // Взломанный игрок (чип «Взлом» у другого) временно остаётся без Сандевистана.
+        return ImplantSlot.isImplant(player.getAttachedOrCreate(ModAttachments.IMPLANT)) && !HackState.isHacked(player);
     }
 
     private static void forceOff(ServerPlayer player) {
@@ -204,6 +227,8 @@ public class SandevistanManager {
         if (s == null) return;
         s.active = false;
         s.forced = false;
+        s.overtime = false;
+        s.chipTicks = 0;
         s.cooldown = 0;
         s.streak = 0;
         s.defragTicks = 0;
@@ -237,6 +262,8 @@ public class SandevistanManager {
             State s = STATES.get(player.getUUID());
             if (s == null) continue;
 
+            tickChip(player, s);
+
             if (s.psychosisTicks > 0) {
                 tickPsychosis(player, s);
                 continue;
@@ -262,6 +289,7 @@ public class SandevistanManager {
 
             if (!s.forced && !hasImplant(player)) {
                 s.active = false;
+                s.overtime = false;
                 s.cooldown = MANUAL_COOLDOWN;
                 setSpeedBoost(player, false);
                 sync(player, s);
@@ -281,7 +309,16 @@ public class SandevistanManager {
                 setSpeedBoost(player, false);
                 sync(player, s);
             } else if (s.ticksLeft <= 0) {
-                overheat(player, s);
+                if (s.chipTicks > 0) {
+                    // Овертайм: чип удерживает Сандевистан включённым, перегрева пока нет.
+                    s.ticksLeft = 0;
+                    if (!s.overtime) {
+                        s.overtime = true;
+                        sync(player, s);
+                    }
+                } else {
+                    overheat(player, s);
+                }
             } else if (s.ticksLeft % 20 == 0) {
                 sync(player, s);
             }
@@ -298,6 +335,7 @@ public class SandevistanManager {
      */
     private static void startPsychosis(ServerPlayer player, State s) {
         s.active = false;
+        s.overtime = false;
         s.streak = 0; // приступ «сжигает» все ячейки
         s.defragTicks = 0;
         s.psychosisTicks = PSYCHOSIS_TICKS;
@@ -324,6 +362,94 @@ public class SandevistanManager {
         } else if (s.psychosisTicks % 20 == 0) {
             sync(player, s);
         }
+    }
+
+    /** Нажали клавишу чипа: включаем его, если надет нейро интерфейс с чипом и он не перезаряжается. */
+    private static void activateChip(ServerPlayer player, State s) {
+        if (s.chipTicks > 0 || s.chipCooldown > 0 || s.psychosisTicks > 0) {
+            syncChip(player, s);
+            return;
+        }
+        if (NeuroChips.activeChip(player) != NeuroChips.OVERTIME) return;
+        s.chipTicks = CHIP_ACTIVE_TICKS;
+        syncChip(player, s);
+    }
+
+    private static void tickChip(ServerPlayer player, State s) {
+        int current = NeuroChips.activeChip(player);
+        boolean resync = current != s.lastChip; // сменили чип — клиенту нужна перезарядка нового
+        s.lastChip = current;
+        if (s.chipCooldown > 0) {
+            s.chipCooldown--;
+            if (current == NeuroChips.OVERTIME && (s.chipCooldown == 0 || s.chipCooldown % 20 == 0)) resync = true;
+        }
+        if (s.hackCooldown > 0) {
+            s.hackCooldown--;
+            if (current == NeuroChips.HACK && (s.hackCooldown == 0 || s.hackCooldown % 20 == 0)) resync = true;
+        }
+        if (s.chipTicks > 0) {
+            s.chipTicks--;
+            boolean valid = current == NeuroChips.OVERTIME; // сняли интерфейс или чип — чип гаснет
+            if (!valid || s.chipTicks <= 0) {
+                // Взлом чужим чипом штрафа не даёт, а снять чип, чтобы избежать штрафа, нельзя.
+                endChip(player, s, !HackState.isHacked(player));
+                resync = false;
+            } else if (s.chipTicks % 20 == 0) {
+                resync = true;
+            }
+        }
+        if (resync) syncChip(player, s);
+    }
+
+    /** Чип кончился: перезарядка, а если шёл овертайм — штраф (penalize = false, если нас отключил взлом). */
+    private static void endChip(ServerPlayer player, State s, boolean penalize) {
+        s.chipTicks = 0;
+        s.chipCooldown = CHIP_COOLDOWN_TICKS;
+        if (s.overtime) {
+            if (penalize) overtimePenalty(player, s);
+            else s.overtime = false;
+        }
+        syncChip(player, s);
+    }
+
+    /**
+     * Конец овертайма (чип кончился или игрок выключил Сандевистан): +2 полоски киберпсихоза (три — приступ)
+     * и 30 секунд без Сандевистана (откат со штрафами перегрева).
+     */
+    private static void overtimePenalty(ServerPlayer player, State s) {
+        s.overtime = false;
+        s.streak += OVERTIME_STREAK;
+        if (s.streak >= PSYCHOSIS_STREAK) {
+            startPsychosis(player, s);
+            return;
+        }
+        s.active = false;
+        s.defragTicks = DEFRAG_WAIT;
+        s.cooldown = OVERTIME_LOCK_TICKS;
+        s.overheatTicks = OVERTIME_LOCK_TICKS;
+        setSpeedBoost(player, false);
+        setOverheatPenalty(player, true);
+        sync(player, s);
+    }
+
+    private static void syncChip(ServerPlayer player, State s) {
+        int chip = NeuroChips.activeChip(player);
+        int active = chip == NeuroChips.OVERTIME ? s.chipTicks : 0;
+        int cooldown = chip == NeuroChips.OVERTIME ? s.chipCooldown : chip == NeuroChips.HACK ? s.hackCooldown : 0;
+        ServerPlayNetworking.send(player, new ChipStatePayload(active, cooldown));
+    }
+
+    /** Можно ли сейчас пользоваться чипом «Взлом» (чип надет, не перезаряжается, нет приступа). */
+    public static boolean canHack(ServerPlayer player) {
+        State s = STATES.computeIfAbsent(player.getUUID(), id -> new State());
+        return NeuroChips.activeChip(player) == NeuroChips.HACK && s.hackCooldown <= 0 && s.psychosisTicks <= 0;
+    }
+
+    /** Игрок начал взлом: запускаем перезарядку чипа (она идёт и при успехе, и при провале). */
+    public static void startHackCooldown(ServerPlayer player) {
+        State s = STATES.computeIfAbsent(player.getUUID(), id -> new State());
+        s.hackCooldown = HACK_COOLDOWN_TICKS;
+        syncChip(player, s);
     }
 
     private static void overheat(ServerPlayer player, State s) {

@@ -30,7 +30,7 @@ public class MemoryDefragScreen extends Screen {
     private static final int PER_FOLDER = 2;
     private static final int CARD_W = 104, CARD_H = 20;
     private static final int FOLDER_W = 118, FOLDER_H = 52;
-    private static final int TEAL = 0x2AE0C0, GREEN = 0x39FF6A, RED = 0xFF3A4A;
+    private static final int GREEN = 0x39FF6A, RED = 0xFF3A4A;
 
     private static class Card {
         String text;
@@ -188,11 +188,11 @@ public class MemoryDefragScreen extends Screen {
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         g.fill(0, 0, width, height, 0xD0050A0A);
         // Еле заметная сетка «кибер-пространства».
-        int grid = HoloUi.argb(0.05F, TEAL);
+        int grid = HoloUi.argb(0.05F, HoloTheme.accent());
         for (int x = 0; x < width; x += 16) g.fill(x, 0, x + 1, height, grid);
         for (int y = 0; y < height; y += 16) g.fill(0, y, width, y + 1, grid);
         int scan = (int) ((System.currentTimeMillis() / 12) % Math.max(1, height));
-        g.fill(RenderPipelines.GUI_TEXT_HIGHLIGHT, 0, scan, width, scan + 2, 0xFF000000 | HoloUi.scale(TEAL, 0.12F));
+        g.fill(RenderPipelines.GUI_TEXT_HIGHLIGHT, 0, scan, width, scan + 2, 0xFF000000 | HoloUi.scale(HoloTheme.accent(), 0.12F));
     }
 
     @Override
@@ -201,7 +201,7 @@ public class MemoryDefragScreen extends Screen {
         long now = System.currentTimeMillis();
         float alpha = HoloUi.flicker(now, 11);
 
-        HoloUi.centeredText(g, font, "ДЕФРАГМЕНТАЦИЯ ПАМЯТИ", width / 2, 12, TEAL, alpha);
+        HoloUi.centeredText(g, font, "ДЕФРАГМЕНТАЦИЯ ПАМЯТИ", width / 2, 12, HoloTheme.accent(), alpha);
         String hint = successTicks >= 0 ? "ПАМЯТЬ ВОССТАНОВЛЕНА — ОДНА ЯЧЕЙКА ОЧИЩЕНА"
                 : "Разложи воспоминания по папкам" + (mistakes > 0 ? "   ОШИБОК: " + mistakes : "");
         HoloUi.centeredText(g, font, hint, width / 2, 26, successTicks >= 0 ? GREEN : 0xB0D8D0, alpha);
@@ -209,7 +209,7 @@ public class MemoryDefragScreen extends Screen {
         // Папки.
         for (int f = 0; f < FOLDERS.length; f++) {
             int fx = Math.round(folderX(f)), fy = Math.round(folderY());
-            int color = folderFlash[f] > 0 ? folderFlashColor[f] : TEAL;
+            int color = folderFlash[f] > 0 ? folderFlashColor[f] : HoloTheme.accent();
             HoloUi.panel(g, fx, fy, fx + FOLDER_W, fy + FOLDER_H, color, alpha * (0.8F + 0.2F * folderFlash[f]));
             // «Ушко» папки.
             g.fill(fx + 6, fy - 6, fx + 46, fy, HoloUi.argb(0.6F * alpha, color));
@@ -226,7 +226,7 @@ public class MemoryDefragScreen extends Screen {
             float jx = c == dragging ? 0 : (glitch.nextFloat() < 0.04F ? glitch.nextInt(5) - 2 : 0);
             if (c.shakeTicks > 0) jx += Mth.sin(c.shakeTicks * 2.5F) * 4;
             int x0 = Math.round(c.x + jx), y0 = Math.round(c.y);
-            int color = c.shakeTicks > 0 ? RED : (c == dragging ? GREEN : TEAL);
+            int color = c.shakeTicks > 0 ? RED : (c == dragging ? GREEN : HoloTheme.accent());
             HoloUi.panel(g, x0, y0, x0 + CARD_W, y0 + CARD_H, color, alpha);
             String text = glitch.nextFloat() < 0.05F ? corrupt(c.text, glitch) : c.text;
             HoloUi.centeredText(g, font, text, x0 + CARD_W / 2, y0 + 6, 0xE0FFF8, alpha);

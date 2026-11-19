@@ -531,7 +531,7 @@ public final class MechManager {
         });
         PayloadTypeRegistry.serverboundPlay().register(InjectPayload.TYPE, InjectPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(MechStatePayload.TYPE, MechStatePayload.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(SummonMechPayload.TYPE, (payload, context) -> summon(context.player()));
+        ServerPlayNetworking.registerGlobalReceiver(SummonMechPayload.TYPE, (payload, context) -> { /* вызов только пультом (предмет), по сети больше не принимаем */ });
         ServerPlayNetworking.registerGlobalReceiver(InjectPayload.TYPE, (payload, context) -> inject(context.player()));
         // Вошедшему игроку в костюме — сразу правильный размер (хитбокс и высота глаз) и таймер.
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -834,16 +834,12 @@ public final class MechManager {
     }
 
     /** Костюм падает с неба туда, куда смотрит игрок (не дальше SUMMON_RANGE). */
-    public static void summon(ServerPlayer player) {
-        if (ModAttachments.hasMech(player)) return; // уже в костюме
-        // Вызвать костюм можно только с надетым Сандевистаном (имплант в слоте).
-        if (!com.smi7i.sandevistan.ImplantSlot.isImplant(player.getAttachedOrCreate(ModAttachments.IMPLANT))) {
-            sync(player);
-            return;
-        }
+    /** Вызывает костюм (предметом «Пульт костюма»). Сандевистан не нужен. Возвращает true, если костюм вызван. */
+    public static boolean summon(ServerPlayer player) {
+        if (ModAttachments.hasMech(player)) return false; // уже в костюме
         if (SUMMON_CD.containsKey(player.getUUID())) { // вызов ещё заряжается
             sync(player);
-            return;
+            return false;
         }
         ServerLevel level = player.level();
         HitResult hit = player.pick(SUMMON_RANGE, 1.0F, false);
@@ -869,6 +865,7 @@ public final class MechManager {
         SUMMONED.put(player.getUUID(), suit.getUUID());
         SUMMON_CD.put(player.getUUID(), SUMMON_COOLDOWN);
         sync(player);
+        return true;
     }
 
     /** Верх твёрдого блока под точкой (ищем вниз до 16 блоков). */

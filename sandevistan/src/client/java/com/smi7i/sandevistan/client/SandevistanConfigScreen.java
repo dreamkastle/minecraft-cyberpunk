@@ -12,7 +12,6 @@ import net.minecraft.network.chat.Component;
 
 /** Экран настроек мода (из ModMenu или по своей клавише). Голографический фон в стиле мода. */
 public class SandevistanConfigScreen extends Screen {
-    private static final int TEAL = 0x2AE0C0;
     private final Screen parent;
 
     public SandevistanConfigScreen(Screen parent) {
@@ -24,7 +23,13 @@ public class SandevistanConfigScreen extends Screen {
     protected void init() {
         SandevistanConfig c = SandevistanConfig.get();
         int w = 220, h = 20, x = width / 2 - w / 2;
-        int y = 46, step = 24;
+        int y = 40, step = 22;
+
+        addRenderableWidget(Button.builder(themeLabel(), b -> {
+            c.theme = HoloTheme.current().next().name();
+            b.setMessage(themeLabel());
+        }).bounds(x, y, w, h).build());
+        y += step;
 
         addRenderableWidget(slider(x, y, w, h, c.filterStrength / 1.5, v -> c.filterStrength = (float) (v * 1.5),
                 v -> String.format(Locale.ROOT, "Сила зелёного фильтра: %d%%", Math.round(v * 150))));
@@ -53,6 +58,10 @@ public class SandevistanConfigScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal("Готово"), b -> onClose()).bounds(x, y, w, h).build());
     }
 
+    private static Component themeLabel() {
+        return Component.literal("Цвет темы: " + HoloTheme.current().label);
+    }
+
     private static AbstractSliderButton slider(int x, int y, int w, int h, double value, DoubleConsumer apply,
                                                DoubleFunction<String> label) {
         double start = Math.max(0, Math.min(1, value));
@@ -72,7 +81,7 @@ public class SandevistanConfigScreen extends Screen {
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         g.fill(0, 0, width, height, 0xD0050A0A);
-        int grid = HoloUi.argb(0.05F, TEAL);
+        int grid = HoloUi.argb(0.05F, HoloTheme.accent());
         for (int x = 0; x < width; x += 16) g.fill(x, 0, x + 1, height, grid);
         for (int y = 0; y < height; y += 16) g.fill(0, y, width, y + 1, grid);
     }
@@ -80,7 +89,7 @@ public class SandevistanConfigScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractRenderState(g, mouseX, mouseY, a);
-        HoloUi.centeredText(g, font, "НАСТРОЙКИ САНДЕВИСТАНА", width / 2, 18, TEAL, HoloUi.flicker(System.currentTimeMillis(), 5));
+        HoloUi.centeredText(g, font, "НАСТРОЙКИ САНДЕВИСТАНА", width / 2, 18, HoloTheme.accent(), HoloUi.flicker(System.currentTimeMillis(), 5));
     }
 
     @Override
