@@ -13,8 +13,6 @@ import net.minecraft.util.Mth;
 public final class ImplantSlotUi {
     // ===== Настройки =====
     /** Цвет рамки и ореола (бирюзовый), цвет свечения со вставленным имплантом (зелёный). */
-    private static final int TEAL = 0x2AE0C0;
-    private static final int GREEN = 0x39FF6A;
     /** Ширина плавного перехода от инвентаря к окошку, в пикселях. */
     private static final int HALO = 6;
 
@@ -33,7 +31,7 @@ public final class ImplantSlotUi {
     /** kind: 0 — позвоночник, 1 — рука, 2 — голова (силуэт в пустом слоте). */
     public static void draw(GuiGraphicsExtractor g, int x, int y, boolean filled, long timeMs, int kind) {
         float pulse = 0.5F + 0.5F * Mth.sin(timeMs / 380.0F);
-        int accent = filled ? GREEN : TEAL;
+        int accent = filled ? HoloTheme.glow() : HoloTheme.accent();
         int x1 = x + 18, y1 = y + 18;
 
         // 1. Плавный переход: мягкая тень и ореол, которые растворяются в фоне инвентаря.
@@ -54,13 +52,20 @@ public final class ImplantSlotUi {
         g.fill(x + 1, y + 1, x1 - 1, y + 2, HoloUi.argb(0.18F, accent));
 
         // 3. Пустой слот — бледный силуэт позвоночника (подсказка, что сюда вставлять).
-        if (!filled && kind == 2) {
-            int ghost = HoloUi.argb(0.22F, TEAL);
+        if (!filled && kind == 3) {
+            int ghost = HoloUi.argb(0.22F, HoloTheme.accent());
+            g.fill(x + 4, y + 4, x + 14, y + 14, ghost);            // корпус чипа
+            for (int p = 0; p < 3; p++) {                           // ножки
+                g.fill(x + 5 + p * 3, y + 2, x + 6 + p * 3, y + 4, ghost);
+                g.fill(x + 5 + p * 3, y + 14, x + 6 + p * 3, y + 16, ghost);
+            }
+        } else if (!filled && kind == 2) {
+            int ghost = HoloUi.argb(0.22F, HoloTheme.accent());
             g.fill(x + 5, y + 2, x + 13, y + 10, ghost);            // голова
             g.fill(x + 8, y + 10, x + 10, y + 13, ghost);           // шея
             g.fill(x + 3, y + 13, x + 15, y + 16, ghost);           // плечи
         } else if (!filled && kind == 1) {
-            int ghost = HoloUi.argb(0.22F, TEAL);
+            int ghost = HoloUi.argb(0.22F, HoloTheme.accent());
             g.fill(x + 7, y + 12, x + 11, y + 16, ghost);          // предплечье
             g.fill(x + 5, y + 7, x + 13, y + 12, ghost);            // ладонь
             g.fill(x + 5, y + 3, x + 6, y + 7, ghost);              // пальцы
@@ -69,7 +74,7 @@ public final class ImplantSlotUi {
             g.fill(x + 11, y + 3, x + 12, y + 7, ghost);
             g.fill(x + 3, y + 8, x + 5, y + 10, ghost);             // большой палец
         } else if (!filled) {
-            int ghost = HoloUi.argb(0.22F, TEAL);
+            int ghost = HoloUi.argb(0.22F, HoloTheme.accent());
             int cx = x + 9;
             for (int v = 0; v < 5; v++) {
                 int vy = y + 3 + v * 3;

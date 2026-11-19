@@ -50,6 +50,36 @@ public class ModItems {
             new Item(new Item.Properties().setId(NEURO_INTERFACE_KEY).stacksTo(1))
     );
 
+    // Пульт костюма: вызов костюма-меха правой кнопкой мыши (раньше клавиша B). Многоразовый.
+    public static final ResourceKey<Item> MECH_REMOTE_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("mech_remote"));
+
+    public static final Item MECH_REMOTE = Registry.register(
+            BuiltInRegistries.ITEM,
+            MECH_REMOTE_KEY,
+            new MechRemoteItem(new Item.Properties().setId(MECH_REMOTE_KEY).stacksTo(1))
+    );
+
+    // Чип 1 «Овертайм»: вставляется в слот чипа (работает при надетом нейро интерфейсе).
+    public static final ResourceKey<Item> CHIP_OVERTIME_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("chip_overtime"));
+
+    public static final Item CHIP_OVERTIME = Registry.register(
+            BuiltInRegistries.ITEM,
+            CHIP_OVERTIME_KEY,
+            new Item(new Item.Properties().setId(CHIP_OVERTIME_KEY).stacksTo(1))
+    );
+
+    // Чип 2 «Взлом»: позволяет взломать игрока с нейро интерфейсом (откроется список целей).
+    public static final ResourceKey<Item> CHIP_HACK_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("chip_hack"));
+
+    public static final Item CHIP_HACK = Registry.register(
+            BuiltInRegistries.ITEM,
+            CHIP_HACK_KEY,
+            new Item(new Item.Properties().setId(CHIP_HACK_KEY).stacksTo(1))
+    );
+
     // Вызывается из Sandevistan.onInitialize(), чтобы класс загрузился и предмет зарегистрировался.
     public static void init() {
         // Имплант во вкладке «Бой» творческого режима.
@@ -59,6 +89,9 @@ public class ModItems {
                     output.accept(new ItemStack(IMMUNOSUPPRESSANT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(HAND_IMPLANT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(NEURO_INTERFACE), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    output.accept(new ItemStack(MECH_REMOTE), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    output.accept(new ItemStack(CHIP_OVERTIME), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    output.accept(new ItemStack(CHIP_HACK), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 });
     }
 }

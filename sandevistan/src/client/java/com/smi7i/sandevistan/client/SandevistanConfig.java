@@ -25,6 +25,8 @@ public final class SandevistanConfig {
     public boolean soulMode = true;
     /** Искры и вспышки от ударов в слоумо. */
     public boolean hitEffects = true;
+    /** Цвет темы интерфейса: BASE, RED или GREEN (см. HoloTheme). */
+    public String theme = "BASE";
     /** Звуки мира ниже и тягучее в слоумо. */
     public boolean slowWorldSounds = true;
 

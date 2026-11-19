@@ -21,13 +21,12 @@ import net.minecraft.world.phys.AABB;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * Нейро интерфейс (имплант головы). Клавиша H включает список в углу экрана: все живые существа в радиусе 20 блоков
+ * Нейро интерфейс (имплант головы). Клавиша K включает список в углу экрана: все живые существа в радиусе 20 блоков
  * с именем, здоровьем и дистанцией, а у игроков с таким же интерфейсом — значок NI. Заготовка под будущие нейро импланты.
  */
 public final class NeuroHud {
     private static final double RADIUS = 20.0;
     private static final int MAX_ROWS = 12;
-    private static final int TEAL = 0x2AE0C0;
 
     private static KeyMapping toggle;
     private static boolean on;
@@ -41,7 +40,7 @@ public final class NeuroHud {
 
     public static void init(KeyMapping.Category category) {
         toggle = KeyMappingHelper.registerKeyMapping(
-                new KeyMapping("key.sandevistan.neuro", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, category));
+                new KeyMapping("key.sandevistan.neuro", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, category));
         ClientTickEvents.END_CLIENT_TICK.register(NeuroHud::tick);
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("sandevistan", "neuro_interface"), NeuroHud::render);
     }
@@ -91,8 +90,8 @@ public final class NeuroHud {
         int rows = Math.max(1, ENTRIES.size());
         int h = 20 + rows * 11 + 4;
 
-        HoloUi.panel(g, x, y, x + w, y + h, TEAL, 0.9F);
-        HoloUi.text(g, font, "НЕЙРО ИНТЕРФЕЙС // СКАН", x + 5, y + 4, TEAL, 1.0F);
+        HoloUi.panel(g, x, y, x + w, y + h, HoloTheme.accent(), 0.9F);
+        HoloUi.text(g, font, "НЕЙРО ИНТЕРФЕЙС // СКАН", x + 5, y + 4, HoloTheme.accent(), 1.0F);
         String summary = "цели " + totalFound + "  NI " + neuroCount;
         g.text(font, summary, x + w - 5 - font.width(summary), y + 4, 0xFFB8FFF0, false);
 
@@ -115,7 +114,7 @@ public final class NeuroHud {
             g.text(font, Math.round(e.hp()) + "/" + Math.round(e.max()), x + 128, ry, 0xFF000000 | color, false);
             g.text(font, e.dist() + " м", x + 178, ry, 0xFF9FD8CF, false);
             if (e.neuro()) {
-                g.fill(x + 206, ry - 1, x + w - 5, ry + 9, HoloUi.argb(0.35F, TEAL));
+                g.fill(x + 206, ry - 1, x + w - 5, ry + 9, HoloUi.argb(0.35F, HoloTheme.accent()));
                 g.text(font, "NI", x + 210, ry, 0xFFB8FFF0, false);
             }
         }

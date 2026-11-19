@@ -3,6 +3,7 @@ package com.smi7i.sandevistan.mixin;
 import com.smi7i.sandevistan.HandImplantSlot;
 import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.ImplantSlot;
+import com.smi7i.sandevistan.NeuroChipSlot;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -28,12 +29,14 @@ public abstract class ServerCreativeImplantMixin {
         boolean main = index == ImplantSlot.MENU_INDEX;
         boolean hand = index == HandImplantSlot.MENU_INDEX_1 || index == HandImplantSlot.MENU_INDEX_2;
         boolean head = index == HeadImplantSlot.MENU_INDEX;
-        if (!main && !hand && !head) return;
+        boolean chip = index == NeuroChipSlot.MENU_INDEX;
+        if (!main && !hand && !head && !chip) return;
         ci.cancel();
         if (!player.hasInfiniteMaterials()) return;
         ItemStack stack = packet.itemStack();
         boolean valid = main ? ImplantSlot.isImplant(stack)
-                : head ? HeadImplantSlot.isHeadImplant(stack) : HandImplantSlot.isHandImplant(stack);
+                : head ? HeadImplantSlot.isHeadImplant(stack)
+                : chip ? NeuroChipSlot.isChip(stack) : HandImplantSlot.isHandImplant(stack);
         if (!stack.isEmpty() && (!valid || stack.getCount() > 1)) return;
         if (player.inventoryMenu.slots.size() <= index) return;
         player.inventoryMenu.getSlot(index).setByPlayer(stack);

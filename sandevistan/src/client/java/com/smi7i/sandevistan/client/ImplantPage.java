@@ -3,6 +3,7 @@ package com.smi7i.sandevistan.client;
 import com.smi7i.sandevistan.HandImplantSlot;
 import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.ImplantSlot;
+import com.smi7i.sandevistan.NeuroChipSlot;
 import com.smi7i.sandevistan.mixin.client.AbstractContainerScreenAccessor;
 import com.smi7i.sandevistan.mixin.client.ScreenInvoker;
 import com.smi7i.sandevistan.mixin.client.SlotAccessor;
@@ -30,7 +31,6 @@ public final class ImplantPage {
 
     private static Screen lastScreen;
     private static final int OFF = -2000;
-    private static final int TEAL = 0x2AE0C0;
 
     /** Слоты обычной страницы, которые прячем на странице имплантов: результат и сетка крафта, броня, левая рука. */
     private static final int[] VANILLA_HIDDEN = {0, 1, 2, 3, 4, 5, 6, 7, 8, 45};
@@ -41,6 +41,7 @@ public final class ImplantPage {
     private static final int SPINE_X = 80, SPINE_Y = 40;
     private static final int LEFT_X = 48, LEFT_Y = 40;
     private static final int RIGHT_X = 112, RIGHT_Y = 40;
+    private static final int CHIP_X = 126, CHIP_Y = 12;
 
     private ImplantPage() {}
 
@@ -93,6 +94,7 @@ public final class ImplantPage {
         place(menu, ImplantSlot.MENU_INDEX, page, SPINE_X, SPINE_Y);
         place(menu, HandImplantSlot.MENU_INDEX_1, page, LEFT_X, LEFT_Y);
         place(menu, HandImplantSlot.MENU_INDEX_2, page, RIGHT_X, RIGHT_Y);
+        place(menu, NeuroChipSlot.MENU_INDEX, page, CHIP_X, CHIP_Y);
     }
 
     private static void place(AbstractContainerMenu menu, int index, boolean page, int x, int y) {
@@ -113,27 +115,31 @@ public final class ImplantPage {
         int x0 = left + 7, y0 = top + 7, x1 = left + 169, y1 = top + 82;
 
         g.fill(x0, y0, x1, y1, 0xFF0B1514);
-        HoloUi.panel(g, x0, y0, x1, y1, TEAL, 0.9F);
+        HoloUi.panel(g, x0, y0, x1, y1, HoloTheme.accent(), 0.9F);
 
         // Силуэт тела: голова, шея, туловище, две руки.
-        int line = HoloUi.argb(0.35F, TEAL);
+        int line = HoloUi.argb(0.35F, HoloTheme.accent());
         outline(g, left + 74, top + 8, left + 102, top + 32, line);     // голова
         g.fill(left + 86, top + 32, left + 90, top + 36, line);          // шея
         outline(g, left + 70, top + 36, left + 106, top + 76, line);     // туловище
         outline(g, left + 42, top + 36, left + 68, top + 70, line);      // левая рука
         outline(g, left + 108, top + 36, left + 134, top + 70, line);    // правая рука
 
+        g.fill(left + 102, top + 20, left + CHIP_X - 1, top + 21, line); // связь головы с чипом
+
         // Подписи.
         if (mc.font != null) {
-            HoloUi.text(g, mc.font, "ГОЛОВА", left + 106, top + 17, TEAL, 0.85F);
-            HoloUi.centeredText(g, mc.font, "СПИНА", left + 88, top + 62, TEAL, 0.85F);
-            HoloUi.centeredText(g, mc.font, "ЛЕВ.", left + 55, top + 62, TEAL, 0.85F);
-            HoloUi.centeredText(g, mc.font, "ПРАВ.", left + 121, top + 62, TEAL, 0.85F);
+            HoloUi.text(g, mc.font, "ГОЛОВА", left + 12, top + 17, HoloTheme.accent(), 0.85F);
+            HoloUi.centeredText(g, mc.font, "ЧИП", left + CHIP_X + 8, top + CHIP_Y + 20, HoloTheme.accent(), 0.85F);
+            HoloUi.centeredText(g, mc.font, "СПИНА", left + 88, top + 62, HoloTheme.accent(), 0.85F);
+            HoloUi.centeredText(g, mc.font, "ЛЕВ.", left + 55, top + 62, HoloTheme.accent(), 0.85F);
+            HoloUi.centeredText(g, mc.font, "ПРАВ.", left + 121, top + 62, HoloTheme.accent(), 0.85F);
         }
 
         // Окошки слотов (предметы рисует сама игра, потому что слоты стоят на этих местах).
         AbstractContainerMenu menu = mc.player != null ? mc.player.inventoryMenu : null;
         frame(g, menu, HeadImplantSlot.MENU_INDEX, left + HEAD_X - 1, top + HEAD_Y - 1, 2, t);
+        frame(g, menu, NeuroChipSlot.MENU_INDEX, left + CHIP_X - 1, top + CHIP_Y - 1, 3, t);
         frame(g, menu, ImplantSlot.MENU_INDEX, left + SPINE_X - 1, top + SPINE_Y - 1, 0, t);
         frame(g, menu, HandImplantSlot.MENU_INDEX_1, left + LEFT_X - 1, top + LEFT_Y - 1, 1, t);
         frame(g, menu, HandImplantSlot.MENU_INDEX_2, left + RIGHT_X - 1, top + RIGHT_Y - 1, 1, t);

@@ -358,7 +358,7 @@ public final class MechLifeHud {
 
     /**
      * Панель справа внизу. В костюме — способности: [R] атака (полоска перезарядки) и [H] шприц (уколы).
-     * Без костюма — [B] вызов костюма со шкалой заряда.
+     * Без костюма — вызов костюма пультом со шкалой заряда (если пульт в инвентаре).
      */
     static void renderAbilities(GuiGraphicsExtractor g) {
         Minecraft mc = Minecraft.getInstance();
@@ -421,14 +421,21 @@ public final class MechLifeHud {
             g.pose().popMatrix();
         } else {
             int h = 30, y0 = sh - h - 10;
-            // Без Сандевистана о костюме ничего не напоминает — панели вызова нет.
-            if (!com.smi7i.sandevistan.ImplantSlot.isImplant(mc.player.getAttachedOrCreate(com.smi7i.sandevistan.ModAttachments.IMPLANT))) return;
+            // Панель вызова показываем, только если в инвентаре есть «Пульт костюма».
+            boolean hasRemote = false;
+            for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
+                if (mc.player.getInventory().getItem(i).is(com.smi7i.sandevistan.ModItems.MECH_REMOTE)) {
+                    hasRemote = true;
+                    break;
+                }
+            }
+            if (!hasRemote) return;
             boolean ready = summonCd <= 0;
             int color = ready ? GREEN : CYAN;
             HoloUi.begin(g, x0, y0, -HoloUi.TILT);
             HoloUi.panel(g, x0, y0, x0 + w, y0 + h, color, alpha * (ready ? 0.7F + 0.3F * (float) Math.abs(Math.sin(now / 400.0)) : 1.0F));
             float charge = 1.0F - summonCd / (float) MechManager.SUMMON_COOLDOWN;
-            ability(g, mc, x0 + 5, y0 + 6, w - 10, "[" + com.smi7i.sandevistan.client.HoloUi.key(MechClient.SUMMON) + "] ВЫЗОВ КОСТЮМА",
+            ability(g, mc, x0 + 5, y0 + 6, w - 10, "ПУЛЬТ: ВЫЗОВ КОСТЮМА",
                     ready ? "ГОТОВ" : String.format(Locale.ROOT, "%dс", (summonCd + 19) / 20), charge, color, alpha);
             g.pose().popMatrix();
         }

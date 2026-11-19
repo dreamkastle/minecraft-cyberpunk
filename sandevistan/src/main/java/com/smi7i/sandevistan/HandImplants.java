@@ -34,6 +34,7 @@ public final class HandImplants {
 
     /** Сколько слотов рук занято имплантами (0..2). */
     public static int count(Player player) {
+        if (HackState.isHacked(player)) return 0; // взломан — импланты рук не работают
         int n = 0;
         if (HandImplantSlot.isHandImplant(player.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_1))) n++;
         if (HandImplantSlot.isHandImplant(player.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_2))) n++;

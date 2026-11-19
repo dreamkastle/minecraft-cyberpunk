@@ -28,8 +28,13 @@ public class HeadImplantSlot extends Slot {
         return stack.is(HEAD_IMPLANTS);
     }
 
-    /** Стоит ли у игрока в слоте головы нейро интерфейс (на клиенте работает и для других игроков). */
+    /** Работает ли у игрока нейро интерфейс: надет в слоте головы и игрок не взломан. */
     public static boolean hasNeuroInterface(Player player) {
+        return hasNeuroInterfaceRaw(player) && !HackState.isHacked(player);
+    }
+
+    /** Надет ли нейро интерфейс в слоте головы (даже если он сейчас отключён взломом). */
+    public static boolean hasNeuroInterfaceRaw(Player player) {
         return isHeadImplant(player.getAttachedOrCreate(ModAttachments.HEAD_IMPLANT));
     }
 

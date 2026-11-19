@@ -3,6 +3,7 @@ package com.smi7i.sandevistan;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
@@ -43,6 +44,24 @@ public class ModAttachments {
                     .initializer(() -> ItemStack.EMPTY)
                     .copyOnDeath()
                     .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
+    /** Слот чипа нейро интерфейса (чип работает, только пока интерфейс надет в слот головы). */
+    public static final AttachmentType<ItemStack> CHIP = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "chip"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
+    /** Игровое время (тики), до которого импланты игрока отключены взломом. Не сохраняется, видно всем клиентам. */
+    public static final AttachmentType<Long> HACKED_UNTIL = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "hacked_until"),
+            builder -> builder
+                    .initializer(() -> 0L)
+                    .syncWith(ByteBufCodecs.VAR_LONG, AttachmentSyncPredicate.all())
     );
 
     /** Игрок «стал» костюмом-мехом (сел в него по ПКМ). Видно всем — по этому флагу рисуется костюм и прячутся руки/ноги. */

@@ -3,6 +3,7 @@ package com.smi7i.sandevistan.mixin;
 import com.smi7i.sandevistan.HandImplantContainer;
 import com.smi7i.sandevistan.HandImplantSlot;
 import com.smi7i.sandevistan.HeadImplantSlot;
+import com.smi7i.sandevistan.NeuroChipSlot;
 import com.smi7i.sandevistan.ImplantContainer;
 import com.smi7i.sandevistan.ModAttachments;
 import com.smi7i.sandevistan.ImplantSlot;
@@ -36,6 +37,8 @@ public abstract class InventoryMenuMixin {
                 .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_2), OFFSCREEN, OFFSCREEN));
         ((AbstractContainerMenuInvoker) (Object) this)
                 .sandevistan$addSlot(new HeadImplantSlot(new HandImplantContainer(owner, ModAttachments.HEAD_IMPLANT), OFFSCREEN, OFFSCREEN));
+        ((AbstractContainerMenuInvoker) (Object) this)
+                .sandevistan$addSlot(new NeuroChipSlot(new HandImplantContainer(owner, ModAttachments.CHIP), OFFSCREEN, OFFSCREEN));
     }
 
     @Inject(method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
@@ -49,13 +52,15 @@ public abstract class InventoryMenuMixin {
 
         boolean fromImplant = index == IMPLANT_SLOT
                 || index == HandImplantSlot.MENU_INDEX_1 || index == HandImplantSlot.MENU_INDEX_2
-                || index == HeadImplantSlot.MENU_INDEX;
+                || index == HeadImplantSlot.MENU_INDEX || index == NeuroChipSlot.MENU_INDEX;
         boolean toImplant = !fromImplant && ImplantSlot.isImplant(stack) && !menu.getSlot(IMPLANT_SLOT).hasItem();
         boolean toHand = !fromImplant && HandImplantSlot.isHandImplant(stack)
                 && (!menu.getSlot(HandImplantSlot.MENU_INDEX_1).hasItem() || !menu.getSlot(HandImplantSlot.MENU_INDEX_2).hasItem());
         boolean toHead = !fromImplant && HeadImplantSlot.isHeadImplant(stack)
                 && !menu.getSlot(HeadImplantSlot.MENU_INDEX).hasItem();
-        if (!fromImplant && !toImplant && !toHand && !toHead) return;
+        boolean toChip = !fromImplant && NeuroChipSlot.isChip(stack)
+                && !menu.getSlot(NeuroChipSlot.MENU_INDEX).hasItem();
+        if (!fromImplant && !toImplant && !toHand && !toHead && !toChip) return;
 
         ItemStack original = stack.copy();
         boolean moved;
@@ -65,8 +70,10 @@ public abstract class InventoryMenuMixin {
             moved = invoker.sandevistan$moveItemStackTo(stack, IMPLANT_SLOT, IMPLANT_SLOT + 1, false);
         } else if (toHand) {
             moved = invoker.sandevistan$moveItemStackTo(stack, HandImplantSlot.MENU_INDEX_1, HandImplantSlot.MENU_INDEX_2 + 1, false);
-        } else {
+        } else if (toHead) {
             moved = invoker.sandevistan$moveItemStackTo(stack, HeadImplantSlot.MENU_INDEX, HeadImplantSlot.MENU_INDEX + 1, false);
+        } else {
+            moved = invoker.sandevistan$moveItemStackTo(stack, NeuroChipSlot.MENU_INDEX, NeuroChipSlot.MENU_INDEX + 1, false);
         }
         if (!moved) {
             if (fromImplant) cir.setReturnValue(ItemStack.EMPTY);

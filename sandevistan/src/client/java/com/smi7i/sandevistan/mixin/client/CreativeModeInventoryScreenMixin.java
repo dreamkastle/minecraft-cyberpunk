@@ -3,6 +3,7 @@ package com.smi7i.sandevistan.mixin.client;
 import com.smi7i.sandevistan.HandImplantSlot;
 import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.ImplantSlot;
+import com.smi7i.sandevistan.NeuroChipSlot;
 import com.smi7i.sandevistan.client.ImplantSlotUi;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -46,6 +47,12 @@ public abstract class CreativeModeInventoryScreenMixin {
             head.sandevistan$setX(HeadImplantSlot.CREATIVE_X);
             head.sandevistan$setY(HeadImplantSlot.CREATIVE_Y);
         }
+        // Слот чипа: под слотом головы.
+        if (slots.size() > NeuroChipSlot.MENU_INDEX) {
+            SlotAccessor chip = (SlotAccessor) slots.get(NeuroChipSlot.MENU_INDEX);
+            chip.sandevistan$setX(NeuroChipSlot.CREATIVE_X);
+            chip.sandevistan$setY(NeuroChipSlot.CREATIVE_Y);
+        }
     }
 
     @Inject(method = "extractBackground", at = @At("TAIL"))
@@ -67,5 +74,8 @@ public abstract class CreativeModeInventoryScreenMixin {
         boolean headFilled = slots.size() > HeadImplantSlot.MENU_INDEX && slots.get(HeadImplantSlot.MENU_INDEX).hasItem();
         ImplantSlotUi.draw(graphics, acc.sandevistan$getLeftPos() + HeadImplantSlot.CREATIVE_X - 1,
                 acc.sandevistan$getTopPos() + HeadImplantSlot.CREATIVE_Y - 1, headFilled, System.currentTimeMillis(), 2);
+        boolean chipFilled = slots.size() > NeuroChipSlot.MENU_INDEX && slots.get(NeuroChipSlot.MENU_INDEX).hasItem();
+        ImplantSlotUi.draw(graphics, acc.sandevistan$getLeftPos() + NeuroChipSlot.CREATIVE_X - 1,
+                acc.sandevistan$getTopPos() + NeuroChipSlot.CREATIVE_Y - 1, chipFilled, System.currentTimeMillis(), 3);
     }
 }
