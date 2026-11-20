@@ -10,6 +10,11 @@ import net.minecraft.sounds.SoundEvent;
  * Где какой играет — client/SandevistanSounds.
  */
 public class ModSounds {
+    /** Клинки богомола: доставание (заглушка, синтезирована — замени своим файлом) и удар (3 варианта, игра берёт случайный). */
+    public static final SoundEvent BLADE_EXTEND = register("blade_extend");
+    public static final SoundEvent BLADE_HIT = register("blade_hit");
+    /** Взмах клинков мимо цели (3 варианта, игра берёт случайный). Играет только при промахе, при попадании — BLADE_HIT. */
+    public static final SoundEvent BLADE_MISS = register("blade_miss");
     /** Вход в состояние Сандевистана (включение). */
     public static final SoundEvent START = register("start");
     /** Сандевистан закончился сам (через 10 секунд, перегрев). */

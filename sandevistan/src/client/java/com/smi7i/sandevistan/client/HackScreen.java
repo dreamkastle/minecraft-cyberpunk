@@ -82,6 +82,8 @@ public class HackScreen extends Screen {
         int hands = ((mask & HackManager.BIT_HAND_LEFT) != 0 ? 1 : 0) + ((mask & HackManager.BIT_HAND_RIGHT) != 0 ? 1 : 0);
         if (hands == 1) names.add("Имплант руки");
         if (hands == 2) names.add("Импланты рук ×2");
+        if ((mask & HackManager.BIT_BLADE_LEFT) != 0) names.add("Левый клинок богомола");
+        if ((mask & HackManager.BIT_BLADE_RIGHT) != 0) names.add("Правый клинок богомола");
         if ((mask & HackManager.BIT_NEURO) != 0) names.add("Нейро интерфейс");
         if ((mask & HackManager.BIT_CHIP_OVERTIME) != 0) names.add("Чип: Овертайм");
         if ((mask & HackManager.BIT_CHIP_HACK) != 0) names.add("Чип: Взлом");

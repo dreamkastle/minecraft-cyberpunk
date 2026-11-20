@@ -36,7 +36,7 @@ public abstract class ServerCreativeImplantMixin {
         ItemStack stack = packet.itemStack();
         boolean valid = main ? ImplantSlot.isImplant(stack)
                 : head ? HeadImplantSlot.isHeadImplant(stack)
-                : chip ? NeuroChipSlot.isChip(stack) : HandImplantSlot.isHandImplant(stack);
+                : chip ? NeuroChipSlot.isChip(stack) : HandImplantSlot.accepts(index, stack);
         if (!stack.isEmpty() && (!valid || stack.getCount() > 1)) return;
         if (player.inventoryMenu.slots.size() <= index) return;
         player.inventoryMenu.getSlot(index).setByPlayer(stack);

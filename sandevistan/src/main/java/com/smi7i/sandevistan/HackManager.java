@@ -20,6 +20,8 @@ public final class HackManager {
     public static final int BIT_NEURO = 8;
     public static final int BIT_CHIP_OVERTIME = 16;
     public static final int BIT_CHIP_HACK = 32;
+    public static final int BIT_BLADE_LEFT = 64;
+    public static final int BIT_BLADE_RIGHT = 128;
 
     public static final double RADIUS = 500.0;
     /** Сколько тиков отключены импланты после успешного взлома: 40 секунд. */
@@ -46,6 +48,8 @@ public final class HackManager {
         if (ImplantSlot.isImplant(p.getAttachedOrCreate(ModAttachments.IMPLANT))) mask |= BIT_SANDEVISTAN;
         if (HandImplantSlot.isHandImplant(p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_1))) mask |= BIT_HAND_LEFT;
         if (HandImplantSlot.isHandImplant(p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_2))) mask |= BIT_HAND_RIGHT;
+        if (p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_1).is(ModItems.BLADE_LEFT)) mask |= BIT_BLADE_LEFT;
+        if (p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_2).is(ModItems.BLADE_RIGHT)) mask |= BIT_BLADE_RIGHT;
         if (HeadImplantSlot.hasNeuroInterfaceRaw(p)) mask |= BIT_NEURO;
         ItemStack chip = p.getAttachedOrCreate(ModAttachments.CHIP);
         if (chip.is(ModItems.CHIP_OVERTIME)) mask |= BIT_CHIP_OVERTIME;

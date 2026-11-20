@@ -38,6 +38,16 @@ public abstract class LivingEntityDamageMixin {
                 && com.smi7i.sandevistan.HandImplants.hasAny(attacker)) {
             result += com.smi7i.sandevistan.HandImplants.BONUS_DAMAGE;
         }
+        // Достанные клинки богомола: удар наносит не меньше 6.5 урона (броня цели его уменьшает) и звенит одним из 3 звуков.
+        if (amount > 0.0F && source.is(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK)
+                && source.getEntity() instanceof ServerPlayer bladeUser
+                && com.smi7i.sandevistan.MantisBlades.isExtended(bladeUser)) {
+            result = Math.max(result, com.smi7i.sandevistan.MantisBlades.DAMAGE);
+            net.minecraft.world.entity.LivingEntity victim = (net.minecraft.world.entity.LivingEntity) (Object) this;
+            bladeUser.level().playSound(null, victim.getX(), victim.getY(), victim.getZ(),
+                    com.smi7i.sandevistan.ModSounds.BLADE_HIT, net.minecraft.sounds.SoundSource.PLAYERS,
+                    1.0F, 0.92F + victim.getRandom().nextFloat() * 0.16F);
+        }
         if ((Object) this instanceof ServerPlayer player
                 && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
                 && SandevistanManager.isDamageReduced(player)) {

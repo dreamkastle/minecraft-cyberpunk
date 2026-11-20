@@ -46,6 +46,10 @@ public final class HandImplants {
     }
 
     private static void update(ServerPlayer player) {
+        // Клинки богомола: сняли клинок или взломали игрока — клинки сами убираются.
+        if (player.getAttachedOrCreate(ModAttachments.BLADES_OUT) && MantisBlades.count(player) == 0) {
+            player.setAttached(ModAttachments.BLADES_OUT, false);
+        }
         boolean both = count(player) >= 2;
         setModifier(player.getAttribute(Attributes.ATTACK_SPEED), ATTACK_SPEED_ID, both);
         setModifier(player.getAttribute(Attributes.BLOCK_BREAK_SPEED), MINING_ID, both);

@@ -34,6 +34,7 @@ public class SandevistanInputClient implements ClientModInitializer {
         com.smi7i.sandevistan.client.mech.MechClient.init(category); // костюм-мех: клавиша B, отрисовка, подсказка
         NeuroHud.init(category);   // нейро интерфейс: клавиша K и список целей
         NeuroChipHud.init(category); // чипы нейро интерфейса: клавиша I и мини-панель
+        MantisBladeClient.init(category); // клинки богомола: клавиша M и отрисовка на руках
         ImplantPage.init();        // страница «Импланты» в инвентаре
         SETTINGS = KeyMappingHelper.registerKeyMapping(
                 new KeyMapping("key.sandevistan.settings", InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));

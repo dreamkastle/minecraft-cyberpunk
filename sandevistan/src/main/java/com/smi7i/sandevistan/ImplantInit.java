@@ -18,6 +18,8 @@ public class ImplantInit implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(HackResultPayload.TYPE, HackResultPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(HackWarningPayload.TYPE, HackWarningPayload.CODEC);
         HackManager.init();
+        PayloadTypeRegistry.serverboundPlay().register(BladeSwingPayload.TYPE, BladeSwingPayload.CODEC);
+        MantisBlades.init();
         PayloadTypeRegistry.clientboundPlay().register(ActiveUsersPayload.TYPE, ActiveUsersPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(FreezePayload.TYPE, FreezePayload.CODEC);
 

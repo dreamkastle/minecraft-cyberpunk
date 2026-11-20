@@ -32,9 +32,9 @@ public abstract class InventoryMenuMixin {
         // Слоты имплантов живут на отдельной странице «Импланты»; на обычной странице инвентаря они убраны за экран,
         // а клиентский код (ImplantPage) ставит их на место при переключении страницы.
         ((AbstractContainerMenuInvoker) (Object) this)
-                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_1), OFFSCREEN, OFFSCREEN));
+                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_1), OFFSCREEN, OFFSCREEN, true));
         ((AbstractContainerMenuInvoker) (Object) this)
-                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_2), OFFSCREEN, OFFSCREEN));
+                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_2), OFFSCREEN, OFFSCREEN, false));
         ((AbstractContainerMenuInvoker) (Object) this)
                 .sandevistan$addSlot(new HeadImplantSlot(new HandImplantContainer(owner, ModAttachments.HEAD_IMPLANT), OFFSCREEN, OFFSCREEN));
         ((AbstractContainerMenuInvoker) (Object) this)
@@ -54,7 +54,7 @@ public abstract class InventoryMenuMixin {
                 || index == HandImplantSlot.MENU_INDEX_1 || index == HandImplantSlot.MENU_INDEX_2
                 || index == HeadImplantSlot.MENU_INDEX || index == NeuroChipSlot.MENU_INDEX;
         boolean toImplant = !fromImplant && ImplantSlot.isImplant(stack) && !menu.getSlot(IMPLANT_SLOT).hasItem();
-        boolean toHand = !fromImplant && HandImplantSlot.isHandImplant(stack)
+        boolean toHand = !fromImplant && HandImplantSlot.isAnyHandItem(stack)
                 && (!menu.getSlot(HandImplantSlot.MENU_INDEX_1).hasItem() || !menu.getSlot(HandImplantSlot.MENU_INDEX_2).hasItem());
         boolean toHead = !fromImplant && HeadImplantSlot.isHeadImplant(stack)
                 && !menu.getSlot(HeadImplantSlot.MENU_INDEX).hasItem();

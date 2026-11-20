@@ -23,6 +23,7 @@
        "InterpolationHandlerMixin",
        "SlotAccessor",
        "ScreenInvoker",
+       "AvatarRendererBladeMixin",
        "CreativeModeInventoryScreenMixin",
        "SoundEngineMixin",
        "MultiPlayerGameModeMixin",

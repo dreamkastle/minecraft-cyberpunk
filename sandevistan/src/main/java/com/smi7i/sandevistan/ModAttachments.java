@@ -64,6 +64,14 @@ public class ModAttachments {
                     .syncWith(ByteBufCodecs.VAR_LONG, AttachmentSyncPredicate.all())
     );
 
+    /** Достаны ли клинки богомола (видно всем клиентам). Не сохраняется: после входа клинки убраны. */
+    public static final AttachmentType<Boolean> BLADES_OUT = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "blades_out"),
+            builder -> builder
+                    .initializer(() -> false)
+                    .syncWith(ByteBufCodecs.BOOL, AttachmentSyncPredicate.all())
+    );
+
     /** Игрок «стал» костюмом-мехом (сел в него по ПКМ). Видно всем — по этому флагу рисуется костюм и прячутся руки/ноги. */
     public static final AttachmentType<Boolean> MECH = AttachmentRegistry.create(
             Identifier.fromNamespaceAndPath("sandevistan", "mech"),

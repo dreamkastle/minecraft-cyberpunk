@@ -80,6 +80,23 @@ public class ModItems {
             new Item(new Item.Properties().setId(CHIP_HACK_KEY).stacksTo(1))
     );
 
+    // Клинки богомола: левый ставится только в левый слот руки, правый — только в правый. Достаются клавишей M.
+    public static final ResourceKey<Item> BLADE_LEFT_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("mantis_blade_left"));
+    public static final ResourceKey<Item> BLADE_RIGHT_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("mantis_blade_right"));
+
+    public static final Item BLADE_LEFT = Registry.register(
+            BuiltInRegistries.ITEM,
+            BLADE_LEFT_KEY,
+            new Item(new Item.Properties().setId(BLADE_LEFT_KEY).stacksTo(1))
+    );
+    public static final Item BLADE_RIGHT = Registry.register(
+            BuiltInRegistries.ITEM,
+            BLADE_RIGHT_KEY,
+            new Item(new Item.Properties().setId(BLADE_RIGHT_KEY).stacksTo(1))
+    );
+
     // Вызывается из Sandevistan.onInitialize(), чтобы класс загрузился и предмет зарегистрировался.
     public static void init() {
         // Имплант во вкладке «Бой» творческого режима.
@@ -92,6 +109,8 @@ public class ModItems {
                     output.accept(new ItemStack(MECH_REMOTE), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(CHIP_OVERTIME), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(CHIP_HACK), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    output.accept(new ItemStack(BLADE_LEFT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    output.accept(new ItemStack(BLADE_RIGHT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 });
     }
 }

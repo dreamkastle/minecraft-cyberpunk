@@ -16,6 +16,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -74,6 +75,8 @@ public class SandevistanManager {
         /** Сколько ещё тиков работает чип нейро интерфейса и сколько он перезаряжается. */
         int chipTicks;
         int chipCooldown;
+        /** Нагрузка киберпсихоза от клинков в десятых долях: каждые 10 — одна полоска. */
+        int bladeLoad;
         /** Перезарядка чипа «Взлом» и последний замеченный чип (чтобы послать клиенту его перезарядку при смене). */
         int hackCooldown;
         int lastChip;
@@ -155,6 +158,8 @@ public class SandevistanManager {
             sync(player, s);
         } else if (action == 3) {
             activateChip(player, s);
+        } else if (action == 4) {
+            toggleBlades(player, s);
         } else if (action == 1) {
             if (!s.active || s.psychosisTicks > 0 || s.forced) return;
             if (s.overtime) { // выключили в овертайме — штраф берётся сразу
@@ -222,7 +227,36 @@ public class SandevistanManager {
         return ImplantSlot.isImplant(player.getAttachedOrCreate(ModAttachments.IMPLANT)) && !HackState.isHacked(player);
     }
 
+    /** Достать клинки богомола или убрать (клавиша M). Доставание добавляет нагрузку киберпсихоза за каждый клинок. */
+    private static void toggleBlades(ServerPlayer player, State s) {
+        if (s.psychosisTicks > 0) return; // в приступе клинки управляются не тобой: достаны до его конца
+        boolean out = player.getAttachedOrCreate(ModAttachments.BLADES_OUT);
+        if (out) {
+            player.setAttached(ModAttachments.BLADES_OUT, false);
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    ModSounds.BLADE_EXTEND, SoundSource.PLAYERS, 0.8F, 0.75F);
+            return;
+        }
+        int blades = MantisBlades.count(player);
+        if (blades == 0 || s.psychosisTicks > 0 || ModAttachments.hasMech(player)) return;
+        player.setAttached(ModAttachments.BLADES_OUT, true);
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                ModSounds.BLADE_EXTEND, SoundSource.PLAYERS, 1.0F, 1.0F);
+        s.bladeLoad += blades * MantisBlades.LOAD_TENTHS_PER_BLADE;
+        while (s.bladeLoad >= 10) {
+            s.bladeLoad -= 10;
+            if (s.streak + 1 >= PSYCHOSIS_STREAK) { // шкала заполнилась — приступ
+                startPsychosis(player, s);
+                break;
+            }
+            s.streak++;
+            s.defragTicks = DEFRAG_WAIT;
+        }
+        sync(player, s);
+    }
+
     private static void forceOff(ServerPlayer player) {
+        player.setAttached(ModAttachments.BLADES_OUT, false);
         State s = STATES.get(player.getUUID());
         if (s == null) return;
         s.active = false;
@@ -336,6 +370,14 @@ public class SandevistanManager {
     private static void startPsychosis(ServerPlayer player, State s) {
         s.active = false;
         s.overtime = false;
+        s.bladeLoad = 0;
+        // В приступе клинки достаются сами (без нагрузки киберпсихоза) и остаются до конца приступа.
+        boolean autoBlades = MantisBlades.count(player) > 0;
+        if (autoBlades && !player.getAttachedOrCreate(ModAttachments.BLADES_OUT)) {
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    ModSounds.BLADE_EXTEND, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+        player.setAttached(ModAttachments.BLADES_OUT, autoBlades);
         s.streak = 0; // приступ «сжигает» все ячейки
         s.defragTicks = 0;
         s.psychosisTicks = PSYCHOSIS_TICKS;
@@ -353,7 +395,8 @@ public class SandevistanManager {
         }
         s.psychosisTicks--;
         if (s.psychosisTicks <= 0) {
-            // Приступ кончился — откат: обычный перегрев.
+            // Приступ кончился — клинки сами убираются, дальше откат: обычный перегрев.
+            player.setAttached(ModAttachments.BLADES_OUT, false);
             setSpeedBoost(player, false);
             s.overheatTicks = PSYCHOSIS_OVERHEAT_TICKS;
             s.cooldown = PSYCHOSIS_OVERHEAT_TICKS;
