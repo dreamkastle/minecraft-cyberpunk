@@ -27,6 +27,10 @@ public final class SandevistanConfig {
     public boolean hitEffects = true;
     /** Цвет темы интерфейса: BASE, RED или GREEN (см. HoloTheme). */
     public String theme = "BASE";
+    /** Эффекты экрана при получении полосок киберпсихоза (перегрев: искажения, красный оттенок). По умолчанию выключены. */
+    public boolean overheatEffects = false;
+    /** Звуки при получении полосок киберпсихоза (перегрев: «глюк» и искажения). По умолчанию выключены. */
+    public boolean overheatSounds = false;
     /** Звуки мира ниже и тягучее в слоумо. */
     public boolean slowWorldSounds = true;
 

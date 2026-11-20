@@ -25,8 +25,10 @@ public abstract class SoundEngineMixin {
         }
         float s = Math.max(com.smi7i.sandevistan.client.mech.MechCutscene.silence(),
                 com.smi7i.sandevistan.client.mech.MechShowdownClient.silence());
-        if (s <= 0) return;
-        cir.setReturnValue(cir.getReturnValue() * (1.0F - 0.93F * s));
+        // Киберпсихоз: все звуки игры (не мода) тише до 5%, на их фоне играет спокойная музыка мода.
+        float volume = cir.getReturnValue() * com.smi7i.sandevistan.client.PsychosisMedia.soundFactor();
+        if (s > 0) volume *= 1.0F - 0.93F * s;
+        cir.setReturnValue(volume);
     }
 
     @Inject(method = "calculatePitch", at = @At("RETURN"), cancellable = true)

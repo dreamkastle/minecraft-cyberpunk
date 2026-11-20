@@ -548,5 +548,12 @@
         "name": "sandevistan:blade_miss_3"
       }
     ]
+  },
+  "psychosis_calm": {
+    "sounds": [
+      {
+        "name": "sandevistan:psychosis_calm"
+      }
+    ]
   }
 }

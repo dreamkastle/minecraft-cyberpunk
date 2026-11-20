@@ -22,8 +22,8 @@ public class SandevistanConfigScreen extends Screen {
     @Override
     protected void init() {
         SandevistanConfig c = SandevistanConfig.get();
-        int w = 220, h = 20, x = width / 2 - w / 2;
-        int y = 40, step = 22;
+        int w = 220, h = 18, x = width / 2 - w / 2;
+        int y = 30, step = 19;
 
         addRenderableWidget(Button.builder(themeLabel(), b -> {
             c.theme = HoloTheme.current().next().name();
@@ -54,7 +54,13 @@ public class SandevistanConfigScreen extends Screen {
         y += step;
         addRenderableWidget(CycleButton.onOffBuilder(c.slowWorldSounds).create(x, y, w, h,
                 Component.literal("Низкий звук мира в слоумо"), (b, v) -> c.slowWorldSounds = v));
-        y += step + 8;
+        y += step;
+        addRenderableWidget(CycleButton.onOffBuilder(c.overheatEffects).create(x, y, w, h,
+                Component.literal("Эффекты полосок киберпсихоза"), (b, v) -> c.overheatEffects = v));
+        y += step;
+        addRenderableWidget(CycleButton.onOffBuilder(c.overheatSounds).create(x, y, w, h,
+                Component.literal("Звуки полосок киберпсихоза"), (b, v) -> c.overheatSounds = v));
+        y += step + 6;
         addRenderableWidget(Button.builder(Component.literal("Готово"), b -> onClose()).bounds(x, y, w, h).build());
     }
 

@@ -108,7 +108,9 @@ public class ClientSandevistanState {
         // На паузе (Esc в одиночной игре) сервер стоит — и наш отсчёт тоже стоит, иначе они разойдутся.
         if (!active && streak > 0 && defragTicks > 0 && !net.minecraft.client.Minecraft.getInstance().isPaused()) defragTicks--;
         // Быстро накатывает, держится, в последние OVERHEAT_FADE_TICKS плавно уходит. Во время приступа — полный красный.
-        float overheatTarget = psychosis() ? 1.0F : Math.min(1.0F, overheatTicks / (float) OVERHEAT_FADE_TICKS);
+        // Эффекты перегрева (при получении полосок) можно отключить в настройках; сам приступ они не касаются.
+        float overheatTarget = psychosis() ? 1.0F
+                : SandevistanConfig.get().overheatEffects ? Math.min(1.0F, overheatTicks / (float) OVERHEAT_FADE_TICKS) : 0.0F;
         overheat += (overheatTarget - overheat) * (overheatTarget > overheat ? OVERHEAT_IN_SPEED : 0.1F);
         if (overheat < 0.002F) overheat = 0.0F;
 
