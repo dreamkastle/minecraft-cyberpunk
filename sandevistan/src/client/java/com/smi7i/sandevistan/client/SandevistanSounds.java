@@ -97,7 +97,7 @@ public final class SandevistanSounds {
         if (glitchDelay > 0 && --glitchDelay == 0) {
             play(mc, ModSounds.PSYCHOSIS_START, PSYCHOSIS_START_VOLUME);
         }
-        if ((psychosis || overheating) && --distortionTimer <= 0) {
+        if (overheating && --distortionTimer <= 0) {
             play(mc, ModSounds.PSYCHOSIS_DISTORTION, DISTORTION_VOLUME);
             distortionTimer = DISTORTION_MIN_GAP + R.nextInt(DISTORTION_MAX_GAP - DISTORTION_MIN_GAP + 1);
         }

@@ -109,10 +109,15 @@ public class ClientSandevistanState {
         if (!active && streak > 0 && defragTicks > 0 && !net.minecraft.client.Minecraft.getInstance().isPaused()) defragTicks--;
         // Быстро накатывает, держится, в последние OVERHEAT_FADE_TICKS плавно уходит. Во время приступа — полный красный.
         // Эффекты перегрева (при получении полосок) можно отключить в настройках; сам приступ они не касаются.
-        float overheatTarget = psychosis() ? 1.0F
-                : SandevistanConfig.get().overheatEffects ? Math.min(1.0F, overheatTicks / (float) OVERHEAT_FADE_TICKS) : 0.0F;
-        overheat += (overheatTarget - overheat) * (overheatTarget > overheat ? OVERHEAT_IN_SPEED : 0.1F);
-        if (overheat < 0.002F) overheat = 0.0F;
+        if (!SandevistanConfig.get().overheatEffects) {
+            // При выключенной настройке не оставляем даже остаточный эффект от предыдущего перегрева/приступа.
+            overheat = 0.0F;
+            prevOverheat = 0.0F;
+        } else {
+            float overheatTarget = Math.min(1.0F, overheatTicks / (float) OVERHEAT_FADE_TICKS);
+            overheat += (overheatTarget - overheat) * (overheatTarget > overheat ? OVERHEAT_IN_SPEED : 0.1F);
+            if (overheat < 0.002F) overheat = 0.0F;
+        }
 
         float fovTarget = active ? 1.0F : 0.0F;
         fovFade += (fovTarget - fovFade) * 0.2F;

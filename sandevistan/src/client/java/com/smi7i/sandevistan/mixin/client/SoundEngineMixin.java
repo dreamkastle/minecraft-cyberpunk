@@ -18,6 +18,20 @@ public abstract class SoundEngineMixin {
     /** Кат-сцена посадки: в чёрном экране мир почти не слышно («гулкая тишина»), свои звуки мода — слышно. */
     @Inject(method = "calculateVolume(Lnet/minecraft/client/resources/sounds/SoundInstance;)F", at = @At("RETURN"), cancellable = true)
     private void sandevistan$cutsceneSilence(SoundInstance sound, CallbackInfoReturnable<Float> cir) {
+        // Во время киберпсихоза оставляем только спокойный звук psychosis_calm.
+        // Все остальные звуки игры и самого мода полностью заглушаются до конца приступа.
+        if (com.smi7i.sandevistan.client.ClientSandevistanState.psychosis()) {
+            boolean calmSound = sound.getIdentifier().equals(
+                    net.minecraft.resources.Identifier.fromNamespaceAndPath("sandevistan", "psychosis_calm"));
+            if (!calmSound) {
+                cir.setReturnValue(0.0F);
+                return;
+            }
+            cir.setReturnValue(cir.getReturnValue()
+                    * com.smi7i.sandevistan.client.SandevistanConfig.get().soundVolume);
+            return;
+        }
+
         // Свои звуки мода — по ползунку «Громкость звуков мода» в настройках.
         if ("sandevistan".equals(sound.getIdentifier().getNamespace())) {
             cir.setReturnValue(cir.getReturnValue() * com.smi7i.sandevistan.client.SandevistanConfig.get().soundVolume);
@@ -25,7 +39,6 @@ public abstract class SoundEngineMixin {
         }
         float s = Math.max(com.smi7i.sandevistan.client.mech.MechCutscene.silence(),
                 com.smi7i.sandevistan.client.mech.MechShowdownClient.silence());
-        // Киберпсихоз: все звуки игры (не мода) тише до 5%, на их фоне играет спокойная музыка мода.
         float volume = cir.getReturnValue() * com.smi7i.sandevistan.client.PsychosisMedia.soundFactor();
         if (s > 0) volume *= 1.0F - 0.93F * s;
         cir.setReturnValue(volume);

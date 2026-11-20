@@ -23,7 +23,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 
 /**
- * Киберпсихоз: перед глазами идёт видео, звуки игры глушатся до 5%, на фоне играет спокойная музыка.
+ * Киберпсихоз: перед глазами идёт видео, все звуки кроме спокойной музыки полностью заглушаются.
  * Всё начинается с приступа и заканчивается вместе с ним (музыка и видео по 30 секунд, как и сам приступ).
  *
  * Видео лежит в ресурсах как набор JPEG-кадров (assets/sandevistan/psychosis/video.bin): игра не умеет
@@ -31,7 +31,7 @@ import net.minecraft.util.RandomSource;
  */
 public final class PsychosisMedia {
     // ===== Настройки =====
-    /** Громкость остальных звуков игры во время приступа (0.05 = 5%). */
+    /** Уровень звука для плавных переходов до/после приступа; во время приступа миксин полностью глушит остальные звуки. */
     private static final float WORLD_VOLUME = 0.05F;
     /** Насколько видео непрозрачно (1 = полностью закрывает мир). */
     private static final float VIDEO_ALPHA = 0.85F;
@@ -64,7 +64,7 @@ public final class PsychosisMedia {
         });
     }
 
-    /** Множитель громкости обычных звуков игры: 1 в обычное время, WORLD_VOLUME во время приступа (плавно). */
+    /** Множитель громкости обычных звуков для плавного перехода при начале и окончании приступа. */
     public static float soundFactor() {
         return 1.0F - (1.0F - WORLD_VOLUME) * fade / FADE_TICKS;
     }
@@ -80,6 +80,8 @@ public final class PsychosisMedia {
             videoTick = 0;
             shownFrame = -1;
             ensureLoaded(mc);
+            // Останавливаем уже звучащие эффекты/музыку. Затем запускаем исключение — psychosis_calm.
+            mc.getSoundManager().stop();
             music = new MusicSound();
             mc.getSoundManager().play(music);
         }
@@ -149,8 +151,10 @@ public final class PsychosisMedia {
         int h = mc.getWindow().getGuiScaledHeight();
         int alpha = Math.round(255 * VIDEO_ALPHA * fade / FADE_TICKS);
         if (alpha <= 2) return;
-        float cover = Math.max(w / (float) vw, h / (float) vh); // заполнить экран целиком
-        int dw = Math.round(vw * cover), dh = Math.round(vh * cover);
+        // Вписываем кадр целиком в экран с небольшим отступом (в т.ч. для 1600x900).
+        // В отличие от cover, contain не обрезает края видео.
+        float fit = Math.min(w / (float) vw, h / (float) vh) * 0.94F;
+        int dw = Math.round(vw * fit), dh = Math.round(vh * fit);
         graphics.blit(RenderPipelines.GUI_TEXTURED, VIDEO_TEXTURE, (w - dw) / 2, (h - dh) / 2, 0, 0, dw, dh,
                 vw, vh, vw, vh, (alpha << 24) | 0xFFFFFF);
     }
