@@ -71,7 +71,8 @@ public final class HackManager {
         for (ServerPlayer other : server.getPlayerList().getPlayers()) {
             if (!isValidTarget(player, other)) continue;
             if (data.length() > 0) data.append('\n');
-            data.append(other.getName().getString()).append('\t').append(implantMask(other));
+            data.append(other.getName().getString()).append('\t').append(implantMask(other))
+                    .append('\t').append(SoftwareSlot.ledLevel(other)); // уровень Л.Е.Д цели (0 — нет): от него зависит босс
         }
         ServerPlayNetworking.send(player, new HackListPayload(data.toString()));
     }
@@ -83,6 +84,8 @@ public final class HackManager {
         if (!isValidTarget(player, target)) return;
         SandevistanManager.startHackCooldown(player);
         PENDING.put(player.getUUID(), new Pending(targetName, player.level().getGameTime() + PENDING_TICKS));
+        // Л.Е.Д предупреждает владельца сразу, как только началась попытка (а не только после провала).
+        if (SoftwareSlot.ledLevel(target) > 0) ServerPlayNetworking.send(target, new HackWarningPayload());
     }
 
     private static void result(ServerPlayer player, boolean success) {
@@ -93,8 +96,10 @@ public final class HackManager {
         if (target == null) return;
         if (success) {
             target.setAttached(ModAttachments.HACKED_UNTIL, target.level().getGameTime() + DISABLE_TICKS);
+            SandevistanManager.onHacked(target); // в постоянном киберпсихозе контроль вернётся, шкала упадёт до 80
         } else {
-            ServerPlayNetworking.send(target, new HackWarningPayload()); // только предупреждение, без ника взломщика
+            // Только предупреждение, без ника взломщика. Если у цели Л.Е.Д, она уже получила его в начале попытки.
+            if (SoftwareSlot.ledLevel(target) == 0) ServerPlayNetworking.send(target, new HackWarningPayload());
         }
     }
 }

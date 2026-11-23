@@ -1,5 +1,7 @@
 package com.smi7i.sandevistan.mixin.client;
 
+import com.smi7i.sandevistan.BodyImplantSlot;
+import com.smi7i.sandevistan.SoftwareSlot;
 import com.smi7i.sandevistan.HandImplantSlot;
 import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.ImplantSlot;
@@ -53,6 +55,18 @@ public abstract class CreativeModeInventoryScreenMixin {
             chip.sandevistan$setX(NeuroChipSlot.CREATIVE_X);
             chip.sandevistan$setY(NeuroChipSlot.CREATIVE_Y);
         }
+        // Слот импланта тела: справа от слота Сандевистана (спины).
+        if (slots.size() > BodyImplantSlot.MENU_INDEX) {
+            SlotAccessor body = (SlotAccessor) slots.get(BodyImplantSlot.MENU_INDEX);
+            body.sandevistan$setX(BodyImplantSlot.CREATIVE_X);
+            body.sandevistan$setY(BodyImplantSlot.CREATIVE_Y);
+        }
+        // Слот П.О: под слотом тела.
+        if (slots.size() > SoftwareSlot.MENU_INDEX) {
+            SlotAccessor software = (SlotAccessor) slots.get(SoftwareSlot.MENU_INDEX);
+            software.sandevistan$setX(SoftwareSlot.CREATIVE_X);
+            software.sandevistan$setY(SoftwareSlot.CREATIVE_Y);
+        }
     }
 
     @Inject(method = "extractBackground", at = @At("TAIL"))
@@ -77,5 +91,11 @@ public abstract class CreativeModeInventoryScreenMixin {
         boolean chipFilled = slots.size() > NeuroChipSlot.MENU_INDEX && slots.get(NeuroChipSlot.MENU_INDEX).hasItem();
         ImplantSlotUi.draw(graphics, acc.sandevistan$getLeftPos() + NeuroChipSlot.CREATIVE_X - 1,
                 acc.sandevistan$getTopPos() + NeuroChipSlot.CREATIVE_Y - 1, chipFilled, System.currentTimeMillis(), 3);
+        boolean bodyFilled = slots.size() > BodyImplantSlot.MENU_INDEX && slots.get(BodyImplantSlot.MENU_INDEX).hasItem();
+        ImplantSlotUi.draw(graphics, acc.sandevistan$getLeftPos() + BodyImplantSlot.CREATIVE_X - 1,
+                acc.sandevistan$getTopPos() + BodyImplantSlot.CREATIVE_Y - 1, bodyFilled, System.currentTimeMillis(), 4);
+        boolean softwareFilled = slots.size() > SoftwareSlot.MENU_INDEX && slots.get(SoftwareSlot.MENU_INDEX).hasItem();
+        ImplantSlotUi.draw(graphics, acc.sandevistan$getLeftPos() + SoftwareSlot.CREATIVE_X - 1,
+                acc.sandevistan$getTopPos() + SoftwareSlot.CREATIVE_Y - 1, softwareFilled, System.currentTimeMillis(), 5);
     }
 }

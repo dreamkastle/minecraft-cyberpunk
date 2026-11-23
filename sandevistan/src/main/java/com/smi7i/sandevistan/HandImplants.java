@@ -51,7 +51,8 @@ public final class HandImplants {
             player.setAttached(ModAttachments.BLADES_OUT, false);
         }
         boolean both = count(player) >= 2;
-        setModifier(player.getAttribute(Attributes.ATTACK_SPEED), ATTACK_SPEED_ID, both);
+        // Пока клинки достаны, скорость атаки задаёт MantisBlades (2.2) — бонус двух имплантов не добавляем.
+        setModifier(player.getAttribute(Attributes.ATTACK_SPEED), ATTACK_SPEED_ID, both && !MantisBlades.isExtended(player));
         setModifier(player.getAttribute(Attributes.BLOCK_BREAK_SPEED), MINING_ID, both);
     }
 

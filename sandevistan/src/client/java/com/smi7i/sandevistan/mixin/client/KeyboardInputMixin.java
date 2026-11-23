@@ -10,12 +10,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Во время киберпсихоза «нажатия» клавиш движения берутся у автопилота, а не с клавиатуры. */
+/** Во время киберпсихоза «нажатия» клавиш движения берутся у автопилота, а не с клавиатуры; во время малого приступа игрок не двигается. */
 @Mixin(KeyboardInput.class)
 public abstract class KeyboardInputMixin {
     @Inject(method = "tick", at = @At("TAIL"))
     private void sandevistan$psychosisInput(CallbackInfo ci) {
         ClientInput self = (ClientInput) (Object) this;
+        // Малый приступ или «замирание» от чужого Сандевистана: никакого движения, прыжка и приседания.
+        if (com.smi7i.sandevistan.client.ClientSandevistanState.episode() || com.smi7i.sandevistan.client.PlayerFreeze.frozen()) {
+            self.keyPresses = new Input(false, false, false, false, false, false, false);
+            ((ClientInputAccessor) self).sandevistan$setMoveVector(Vec2.ZERO);
+            return;
+        }
         // Кат-сцена посадки в костюм: персонаж сам подходит к костюму, игрок им не управляет.
         Input cut = com.smi7i.sandevistan.client.mech.MechCutscene.forcedInput();
         if (cut == null && com.smi7i.sandevistan.client.mech.MechShowdownClient.locked()) {
@@ -43,7 +49,17 @@ public abstract class KeyboardInputMixin {
             }
             return;
         }
-        if (forced == null) return;
+        if (forced == null) {
+            // Игрок с нейро интерфейсом в чужой зоне Сандевистана: ходит так же медленно, как мобы в зоне.
+            if (com.smi7i.sandevistan.client.ClientZones.neuroSlowed()) {
+                Input in = self.keyPresses;
+                float fwd = in.forward() == in.backward() ? 0.0F : (in.forward() ? 1.0F : -1.0F);
+                float lft = in.left() == in.right() ? 0.0F : (in.left() ? 1.0F : -1.0F);
+                ((ClientInputAccessor) self).sandevistan$setMoveVector(
+                        new Vec2(lft, fwd).normalized().scale(com.smi7i.sandevistan.client.ClientZones.slowFactor()));
+            }
+            return;
+        }
         self.keyPresses = forced;
         float forward = forced.forward() == forced.backward() ? 0.0F : (forced.forward() ? 1.0F : -1.0F);
         float left = forced.left() == forced.right() ? 0.0F : (forced.left() ? 1.0F : -1.0F);

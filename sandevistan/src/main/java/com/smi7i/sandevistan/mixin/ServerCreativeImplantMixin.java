@@ -1,5 +1,7 @@
 package com.smi7i.sandevistan.mixin;
 
+import com.smi7i.sandevistan.BodyImplantSlot;
+import com.smi7i.sandevistan.SoftwareSlot;
 import com.smi7i.sandevistan.HandImplantSlot;
 import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.ImplantSlot;
@@ -30,13 +32,17 @@ public abstract class ServerCreativeImplantMixin {
         boolean hand = index == HandImplantSlot.MENU_INDEX_1 || index == HandImplantSlot.MENU_INDEX_2;
         boolean head = index == HeadImplantSlot.MENU_INDEX;
         boolean chip = index == NeuroChipSlot.MENU_INDEX;
-        if (!main && !hand && !head && !chip) return;
+        boolean body = index == BodyImplantSlot.MENU_INDEX;
+        boolean software = index == SoftwareSlot.MENU_INDEX;
+        if (!main && !hand && !head && !chip && !body && !software) return;
         ci.cancel();
         if (!player.hasInfiniteMaterials()) return;
         ItemStack stack = packet.itemStack();
         boolean valid = main ? ImplantSlot.isImplant(stack)
                 : head ? HeadImplantSlot.isHeadImplant(stack)
-                : chip ? NeuroChipSlot.isChip(stack) : HandImplantSlot.accepts(index, stack);
+                : chip ? NeuroChipSlot.isChip(stack)
+                : body ? BodyImplantSlot.isBodyImplant(stack)
+                : software ? SoftwareSlot.isSoftware(stack) : HandImplantSlot.accepts(index, stack);
         if (!stack.isEmpty() && (!valid || stack.getCount() > 1)) return;
         if (player.inventoryMenu.slots.size() <= index) return;
         player.inventoryMenu.getSlot(index).setByPlayer(stack);

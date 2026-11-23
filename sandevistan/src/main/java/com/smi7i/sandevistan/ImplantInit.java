@@ -27,6 +27,7 @@ public class ImplantInit implements ModInitializer {
                 (payload, context) -> SandevistanManager.onAction(context.player(), payload.action()));
 
         HandImplants.init(); // импланты рук: бонус урона и скорость
+        BodyImplants.init(); // имплант тела: подкожная броня
         SandevistanManager.init();
         com.smi7i.sandevistan.mech.MechManager.init(); // костюм-мех: вызов клавишей и посадка по ПКМ
     }

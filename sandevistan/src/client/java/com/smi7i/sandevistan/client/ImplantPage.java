@@ -1,5 +1,7 @@
 package com.smi7i.sandevistan.client;
 
+import com.smi7i.sandevistan.BodyImplantSlot;
+import com.smi7i.sandevistan.SoftwareSlot;
 import com.smi7i.sandevistan.HandImplantSlot;
 import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.ImplantSlot;
@@ -23,7 +25,7 @@ import net.minecraft.world.inventory.Slot;
 
 /**
  * Страница «Импланты» в обычном инвентаре. Вкладка-кнопка справа от окна переключает страницу: обычные слоты
- * (броня, крафт, левая рука) уходят за экран, а четыре слота имплантов (голова, спина, две руки) встают на силуэт
+ * (броня, крафт, левая рука) уходят за экран, а слоты имплантов (голова, чип, спина, тело, две руки) встают на силуэт
  * тела. Всё это происходит на том же экране и том же меню, поэтому сервер ничего не знает о страницах.
  */
 public final class ImplantPage {
@@ -42,6 +44,8 @@ public final class ImplantPage {
     private static final int LEFT_X = 48, LEFT_Y = 40;
     private static final int RIGHT_X = 112, RIGHT_Y = 40;
     private static final int CHIP_X = 126, CHIP_Y = 12;
+    private static final int BODY_X = 146, BODY_Y = 40;
+    private static final int SOFT_X = 52, SOFT_Y = 12;
 
     private ImplantPage() {}
 
@@ -95,6 +99,8 @@ public final class ImplantPage {
         place(menu, HandImplantSlot.MENU_INDEX_1, page, LEFT_X, LEFT_Y);
         place(menu, HandImplantSlot.MENU_INDEX_2, page, RIGHT_X, RIGHT_Y);
         place(menu, NeuroChipSlot.MENU_INDEX, page, CHIP_X, CHIP_Y);
+        place(menu, BodyImplantSlot.MENU_INDEX, page, BODY_X, BODY_Y);
+        place(menu, SoftwareSlot.MENU_INDEX, page, SOFT_X, SOFT_Y);
     }
 
     private static void place(AbstractContainerMenu menu, int index, boolean page, int x, int y) {
@@ -126,12 +132,17 @@ public final class ImplantPage {
         outline(g, left + 108, top + 36, left + 134, top + 70, line);    // правая рука
 
         g.fill(left + 102, top + 20, left + CHIP_X - 1, top + 21, line); // связь головы с чипом
+        g.fill(left + SOFT_X + 17, top + 20, left + 74, top + 21, line);  // связь головы с П.О
+        g.fill(left + 88, top + 34, left + BODY_X + 9, top + 35, line);  // связь спины с телом: от шеи над плечами
+        g.fill(left + BODY_X + 8, top + 34, left + BODY_X + 9, top + BODY_Y - 1, line); // и вниз к слоту тела
 
         // Подписи.
         if (mc.font != null) {
             HoloUi.text(g, mc.font, "ГОЛОВА", left + 12, top + 17, HoloTheme.accent(), 0.85F);
             HoloUi.centeredText(g, mc.font, "ЧИП", left + CHIP_X + 8, top + CHIP_Y + 20, HoloTheme.accent(), 0.85F);
             HoloUi.centeredText(g, mc.font, "СПИНА", left + 88, top + 62, HoloTheme.accent(), 0.85F);
+            HoloUi.centeredText(g, mc.font, "П.О", left + SOFT_X + 8, top + SOFT_Y + 20, HoloTheme.accent(), 0.85F);
+            HoloUi.centeredText(g, mc.font, "ТЕЛО", left + BODY_X + 8, top + 62, HoloTheme.accent(), 0.85F);
             HoloUi.centeredText(g, mc.font, "ЛЕВ.", left + 55, top + 62, HoloTheme.accent(), 0.85F);
             HoloUi.centeredText(g, mc.font, "ПРАВ.", left + 121, top + 62, HoloTheme.accent(), 0.85F);
         }
@@ -141,6 +152,8 @@ public final class ImplantPage {
         frame(g, menu, HeadImplantSlot.MENU_INDEX, left + HEAD_X - 1, top + HEAD_Y - 1, 2, t);
         frame(g, menu, NeuroChipSlot.MENU_INDEX, left + CHIP_X - 1, top + CHIP_Y - 1, 3, t);
         frame(g, menu, ImplantSlot.MENU_INDEX, left + SPINE_X - 1, top + SPINE_Y - 1, 0, t);
+        frame(g, menu, BodyImplantSlot.MENU_INDEX, left + BODY_X - 1, top + BODY_Y - 1, 4, t);
+        frame(g, menu, SoftwareSlot.MENU_INDEX, left + SOFT_X - 1, top + SOFT_Y - 1, 5, t);
         frame(g, menu, HandImplantSlot.MENU_INDEX_1, left + LEFT_X - 1, top + LEFT_Y - 1, 1, t);
         frame(g, menu, HandImplantSlot.MENU_INDEX_2, left + RIGHT_X - 1, top + RIGHT_Y - 1, 1, t);
     }

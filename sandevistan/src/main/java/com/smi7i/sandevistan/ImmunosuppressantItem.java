@@ -47,8 +47,8 @@ public class ImmunosuppressantItem extends Item {
         if (level.isClientSide()) {
             if (!clientCanUse.getAsBoolean()) return InteractionResult.FAIL;
         } else if (player instanceof ServerPlayer sp) {
-            // Нет ячеек или идёт приступ — укол не начинаем (текст над хотбаром не показываем).
-            if (SandevistanManager.isInPsychosis(sp) || SandevistanManager.getStreak(sp) <= 0) {
+            // Шкала киберпсихоза пуста или идёт приступ — укол не начинаем (текст над хотбаром не показываем).
+            if (SandevistanManager.isInPsychosis(sp) || SandevistanManager.getLoad(sp) <= 0) {
                 return InteractionResult.FAIL;
             }
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -70,7 +70,7 @@ public class ImmunosuppressantItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        if (entity instanceof ServerPlayer sp && SandevistanManager.removeOneCell(sp)) {
+        if (entity instanceof ServerPlayer sp && SandevistanManager.removeLoad(sp)) {
             stack.consume(1, sp); // в творческом режиме предмет не тратится
             // Урон magic() проходит мимо брони; может убить, если здоровья мало.
             injecting = true;

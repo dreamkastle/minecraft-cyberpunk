@@ -8,7 +8,9 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Пока работает Сандевистан (и во время приступа), любой урон по игроку — падение, огонь, мобы, взрывы —
@@ -16,6 +18,24 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
  */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityDamageMixin {
+    /**
+     * Пока у игрока включён Сандевистан, враждебные и нейтральные мобы не могут нанести ему урон вообще
+     * (ни удар при сближении, ни стрела, ни взрыв крипера): удар отменяется целиком — без урона, отбрасывания и
+     * красной вспышки. Остальные источники (падение, огонь, игроки) работают, как раньше. Кончился Сандевистан — всё как обычно.
+     */
+    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+    private void sandevistan$mobsCannotHurt(ServerLevel level, DamageSource source, float amount,
+                                            CallbackInfoReturnable<Boolean> cir) {
+        if (!((Object) this instanceof ServerPlayer player)) return;
+        if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
+        if (!SandevistanManager.isSandevistanRunning(player)) return;
+        net.minecraft.world.entity.Entity attacker = source.getEntity();
+        if (attacker instanceof net.minecraft.world.entity.monster.Enemy
+                || attacker instanceof net.minecraft.world.entity.NeutralMob) {
+            cir.setReturnValue(false);
+        }
+    }
+
     @ModifyVariable(method = "hurtServer", at = @At("HEAD"), argsOnly = true)
     private float sandevistan$reduceDamage(float amount, ServerLevel level, DamageSource source, float originalAmount) {
         // Кат-сцена «Последнего боя»: пилот неуязвим (кроме пустоты и /kill).
@@ -38,11 +58,11 @@ public abstract class LivingEntityDamageMixin {
                 && com.smi7i.sandevistan.HandImplants.hasAny(attacker)) {
             result += com.smi7i.sandevistan.HandImplants.BONUS_DAMAGE;
         }
-        // Достанные клинки богомола: удар наносит не меньше 6.5 урона (броня цели его уменьшает) и звенит одним из 3 звуков.
+        // Достанные клинки богомола: удар наносит не меньше 6.5 урона (4 — если надет один клинок) (броня цели его уменьшает) и звенит одним из 3 звуков.
         if (amount > 0.0F && source.is(net.minecraft.world.damagesource.DamageTypes.PLAYER_ATTACK)
                 && source.getEntity() instanceof ServerPlayer bladeUser
                 && com.smi7i.sandevistan.MantisBlades.isExtended(bladeUser)) {
-            result = Math.max(result, com.smi7i.sandevistan.MantisBlades.DAMAGE);
+            result = Math.max(result, com.smi7i.sandevistan.MantisBlades.damageFor(bladeUser));
             net.minecraft.world.entity.LivingEntity victim = (net.minecraft.world.entity.LivingEntity) (Object) this;
             bladeUser.level().playSound(null, victim.getX(), victim.getY(), victim.getZ(),
                     com.smi7i.sandevistan.ModSounds.BLADE_HIT, net.minecraft.sounds.SoundSource.PLAYERS,

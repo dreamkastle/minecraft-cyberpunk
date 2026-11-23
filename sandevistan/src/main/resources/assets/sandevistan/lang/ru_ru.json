@@ -27,5 +27,12 @@
   "key.sandevistan.mech_showdown": "Костюм: последний бой (полная шкала)",
   "key.sandevistan.mech_eject": "Костюм: снять (смерть, зажать)",
   "key.sandevistan.mech_inject": "Костюм: укол из шприцов (до 1 минуты)",
-  "entity.sandevistan.mech_suit": "Костюм-мех"
+  "entity.sandevistan.mech_suit": "Костюм-мех",
+  "item.sandevistan.armor_implant_1": "Подкожная броня Mk.I",
+  "item.sandevistan.armor_implant_2": "Подкожная броня Mk.II",
+  "item.sandevistan.armor_implant_3": "Подкожная броня Mk.III",
+  "item.sandevistan.advanced_neuro_interface": "Продвинутый нейро интерфейс",
+  "item.sandevistan.led_1": "Л.Е.Д Mk.I",
+  "item.sandevistan.led_2": "Л.Е.Д Mk.II",
+  "item.sandevistan.led_3": "Л.Е.Д Mk.III"
 }

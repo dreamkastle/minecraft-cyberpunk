@@ -20,13 +20,53 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 
 /** Серверная логика Сандевистана: включение, 10 секунд работы, выключение, перегрев. */
 public class SandevistanManager {
     public static final int DURATION = 200;          // 10 секунд
     public static final int OVERHEAT_TICKS = 260;    // 13 секунд штрафа после перегрева (было 10, +3 с)
     public static final int MANUAL_COOLDOWN = 100;   // 5 секунд после ручного выключения
-    public static final int PSYCHOSIS_STREAK = 3;    // перегревов подряд до киберпсихоза
+    /**
+     * Шкала киберпсихоза: 0..100 единиц, хранится в десятых долях (LOAD_MAX = 1000 = 100.0). Заполнилась — приступ.
+     * Сейчас шкалу меняют только: ношение Сандевистана, его включение и иммуносупрессор. Остальные источники
+     * (клинки, чипы, взлом, перегревы) пока отключены — новые добавляются через addLoadUnits.
+     */
+    public static final int LOAD_MAX = 1000;
+    /** Ношение Сандевистана: +0.1 единицы каждую секунду. */
+    public static final int LOAD_PER_SECOND = 1;
+    /** Включение Сандевистана: +5 единиц. */
+    public static final int LOAD_ON_ACTIVATE = 50;
+    /** Иммуносупрессор: -10 единиц. */
+    public static final int LOAD_IMMUNOSUPPRESSANT = 100;
+
+    /**
+     * Малый приступ: пока на шкале есть хотя бы 40 единиц, раз в секунду бросается кубик. Шанс не плавный, а по ступеням:
+     * от 40 единиц — 0.2%, от 50 — 0.5%, от 60 — 1.2%, на 100 — 2.2%. Приступ длится 5 секунд: игрок не может
+     * двигаться, звуки вокруг тише до 3%, перед глазами середина слайдшоу киберпсихоза.
+     */
+    public static final int EPISODE_MIN_LOAD = 400;        // 40 единиц (в десятых долях)
+    public static final int EPISODE_TICKS = 100;           // 5 секунд
+
+    /** От 75 единиц каждый малый приступ перерастает в приступ киберпсихоза с потерей контроля (30 секунд). */
+    public static final int LOAD_ESCALATE = 750;
+    /** Шкала дошла до 100 — потеря контроля насовсем: пока не умрёт или пока чипом «Взлом» не отключат его импланты. */
+    public static final int PERMANENT_PSYCHOSIS_TICKS = 1_000_000;
+    /** Чип «Взлом» сбивает постоянный приступ: шкала временно падает до 80, есть время снять импланты. */
+    public static final int LOAD_AFTER_HACK = 800;
+    /** Окно после снятия всех имплантов (3 минуты): наденешь военный имплант — шкала сразу 60. */
+    public static final int GRACE_TICKS = 20 * 60 * 3;
+    public static final int LOAD_AFTER_GRACE = 600;
+
+    /** Сколько шкалы (в десятых долях) дают разовые действия имплантов. */
+    public static final int LOAD_NEURO_EQUIP = 20;      // надел нейро интерфейс: +2
+    public static final int LOAD_BLADE_EXTEND = 30;     // достал клинок (каждый): +3
+    public static final int LOAD_CHIP_OVERTIME = 70;    // использовал чип овертайма: +7
+    public static final int LOAD_CHIP_HACK = 10;        // использовал чип взлома: +1
+
+    // Импланты, которые считаются отдельно: сколько шкалы каждый успел добавить (вычитается при его снятии).
+    private static final int K_SAND = 0, K_NEURO = 1, K_CHIP = 2, K_HAND_L = 3, K_HAND_R = 4, K_ARMOR = 5, K_COUNT = 6;
     public static final int PSYCHOSIS_TICKS = 600;   // 30 секунд приступа (было 20, +10 с)
     public static final int PSYCHOSIS_OVERHEAT_TICKS = 400; // 20 секунд перегрева ПОСЛЕ приступа (вдвое дольше обычного)
     /** Во сколько раз длиннее Сандевистан, пока идёт приступ киберпсихоза (после приступа снова обычный). */
@@ -34,8 +74,7 @@ public class SandevistanManager {
     /** Чип «Овертайм»: работает 6 секунд, потом перезаряжается 2 минуты (отсчёт с конца работы). */
     public static final int CHIP_ACTIVE_TICKS = 120;
     public static final int CHIP_COOLDOWN_TICKS = 2400;
-    /** Штраф в конце овертайма: столько полосок киберпсихоза и столько тиков без Сандевистана (30 секунд). */
-    public static final int OVERTIME_STREAK = 2;
+    /** Штраф в конце овертайма: столько тиков без Сандевистана (30 секунд). */
     public static final int OVERTIME_LOCK_TICKS = 600;
     /** Чип «Взлом»: перезарядка 1 минута 30 секунд, отсчёт с начала попытки взлома. */
     public static final int HACK_COOLDOWN_TICKS = 1800;
@@ -65,7 +104,27 @@ public class SandevistanManager {
         boolean active;
         int ticksLeft;
         int cooldown;
-        int streak;
+        /** Шкала киберпсихоза в десятых долях единицы: 0..LOAD_MAX. */
+        int load;
+        /** Тики до следующей прибавки за ношение Сандевистана (раз в секунду). */
+        int loadTimer;
+        /** Сколько ещё тиков длится малый приступ (0 = нет) и тики до следующего броска кубика (раз в секунду). */
+        int episodeTicks;
+        int episodeTimer;
+        /** Потеря контроля насовсем (шкала дошла до 100): психоз не кончается сам. */
+        boolean permanent;
+        /** Сколько шкалы успел добавить каждый имплант (в десятых долях): при его снятии столько вычитается. */
+        final int[] given = new int[K_COUNT];
+        /** Что лежало в слотах имплантов в прошлый тик (чтобы заметить «надел» и «снял»). */
+        final Item[] lastItem = new Item[K_COUNT];
+        boolean tracked;
+        boolean hadImplants;
+        /** Сколько ещё тиков действует окно «надел военный имплант — шкала 60» после снятия всех имплантов. */
+        int graceTicks;
+        /** Отсрочка от чипа «Взлом» (в десятых долях): на сколько шкала временно сброшена со 100; вернётся, когда взлом кончится. */
+        int reprieve;
+        /** Дробный остаток шкалы (в десятых): продвинутый нейро интерфейс замедляет рост на 15%, остаток копится. */
+        double loadCarry;
         /** Сколько ещё тиков длится перегрев (штрафы и эффекты на экране). */
         int overheatTicks;
         /** Сколько ещё тиков длится приступ киберпсихоза (управление у автопилота на клиенте). */
@@ -75,8 +134,6 @@ public class SandevistanManager {
         /** Сколько ещё тиков работает чип нейро интерфейса и сколько он перезаряжается. */
         int chipTicks;
         int chipCooldown;
-        /** Нагрузка киберпсихоза от клинков в десятых долях: каждые 10 — одна полоска. */
-        int bladeLoad;
         /** Перезарядка чипа «Взлом» и последний замеченный чип (чтобы послать клиенту его перезарядку при смене). */
         int hackCooldown;
         int lastChip;
@@ -105,24 +162,174 @@ public class SandevistanManager {
         return s != null && s.psychosisTicks > 0;
     }
 
-    /** Сколько ячеек киберпсихоза сейчас занято (0..PSYCHOSIS_STREAK-1). */
-    public static int getStreak(ServerPlayer player) {
+    /** Шкала киберпсихоза игрока в десятых долях единицы (0..LOAD_MAX). */
+    public static int getLoad(ServerPlayer player) {
         State s = STATES.get(player.getUUID());
-        return s == null ? 0 : s.streak;
+        return s == null ? 0 : s.load;
     }
 
     /**
-     * Иммуносупрессор: снимает одну ячейку киберпсихоза СРАЗУ, не дожидаясь 3 минут (DEFRAG_WAIT).
-     * Таймер очистки мини-игрой не трогаем. Не работает во время самого приступа.
-     * @return true, если ячейка снята (тогда предмет можно тратить)
+     * Иммуносупрессор: убавляет шкалу киберпсихоза на 10 единиц (не ниже нуля). Не работает во время самого приступа.
+     * @return true, если шкала была не пуста и убавилась (тогда предмет можно тратить)
      */
-    public static boolean removeOneCell(ServerPlayer player) {
+    public static boolean removeLoad(ServerPlayer player) {
         State s = STATES.get(player.getUUID());
-        if (s == null || s.psychosisTicks > 0 || s.streak <= 0) return false;
-        s.streak--;
-        if (s.streak == 0) s.defragTicks = 0;
+        if (s == null || s.psychosisTicks > 0 || s.load <= 0) return false;
+        s.load = Math.max(0, s.load - LOAD_IMMUNOSUPPRESSANT);
         sync(player, s);
         return true;
+    }
+
+    /** Прибавить к шкале tenths десятых долей единицы; дошла до максимума — потеря контроля насовсем. @return true, если уже отправили состояние клиенту. */
+    private static boolean addLoad(ServerPlayer player, State s, int tenths) {
+        if (s.psychosisTicks > 0 || tenths <= 0) return false;
+        s.load = Math.min(LOAD_MAX, s.load + tenths);
+        if (s.load >= LOAD_MAX) {
+            startPsychosis(player, s, true); // сам отправляет состояние
+            return true;
+        }
+        sync(player, s);
+        return true;
+    }
+
+    /** Продвинутый нейро интерфейс: любая прибавка к шкале на 15% меньше (дробные части копятся и не теряются). */
+    private static final double ADVANCED_NEURO_LOAD_FACTOR = 0.85;
+
+    private static int resist(ServerPlayer player, State s, int tenths) {
+        if (tenths <= 0 || !HeadImplantSlot.hasAdvancedNeuro(player)) return tenths;
+        double scaled = tenths * ADVANCED_NEURO_LOAD_FACTOR + s.loadCarry;
+        int whole = (int) scaled;
+        s.loadCarry = scaled - whole;
+        return whole;
+    }
+
+    /** То же, но запоминаем, что эту часть шкалы добавил имплант key: снимут его — вычтется. */
+    private static boolean addLoadTracked(ServerPlayer player, State s, int key, int tenths) {
+        if (s.psychosisTicks > 0 || tenths <= 0) return false;
+        int added = resist(player, s, tenths);
+        if (added <= 0) return false;
+        s.given[key] += added;
+        return addLoad(player, s, added);
+    }
+
+    // ---------------------------------------------------------------- слежение за имплантами
+
+    private static ItemStack slotStack(ServerPlayer p, int key) {
+        return switch (key) {
+            case K_SAND -> p.getAttachedOrCreate(ModAttachments.IMPLANT);
+            case K_NEURO -> p.getAttachedOrCreate(ModAttachments.HEAD_IMPLANT);
+            case K_CHIP -> p.getAttachedOrCreate(ModAttachments.CHIP);
+            case K_HAND_L -> p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_1);
+            case K_HAND_R -> p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_2);
+            default -> p.getAttachedOrCreate(ModAttachments.BODY_IMPLANT);
+        };
+    }
+
+    /** Военные импланты: Сандевистан, клинки богомола, подкожная броня. */
+    private static boolean isMilitary(int key, Item item) {
+        return key == K_SAND || key == K_ARMOR
+                || (key == K_HAND_L && item == ModItems.BLADE_LEFT)
+                || (key == K_HAND_R && item == ModItems.BLADE_RIGHT);
+    }
+
+    /** Заметить, какой имплант надели или сняли, и применить правила шкалы. */
+    private static void trackImplants(ServerPlayer player, State s) {
+        boolean any = false;
+        for (int key = 0; key < K_COUNT; key++) {
+            ItemStack stack = slotStack(player, key);
+            Item now = stack.isEmpty() ? null : stack.getItem();
+            if (now != null) any = true;
+            if (!s.tracked) {
+                s.lastItem[key] = now; // что надето до начала слежения, ничего не даёт
+                continue;
+            }
+            if (now == s.lastItem[key]) continue;
+            if (s.lastItem[key] != null) {
+                // Сняли (или заменили): шкала убавляется на столько, сколько имплант успел добавить.
+                s.load = Math.max(0, s.load - s.given[key]);
+                s.given[key] = 0;
+                sync(player, s);
+            }
+            s.lastItem[key] = now;
+            if (now != null) {
+                // +2 даёт обычный нейро интерфейс; продвинутый при надевании шкалу не трогает.
+                if (key == K_NEURO && now == ModItems.NEURO_INTERFACE) addLoadTracked(player, s, K_NEURO, LOAD_NEURO_EQUIP);
+                if (isMilitary(key, now) && s.graceTicks > 0) {
+                    // Надел военный имплант в течение 3 минут после снятия всех: шкала сразу поднимается до 60.
+                    s.graceTicks = 0;
+                    if (s.load < LOAD_AFTER_GRACE) {
+                        s.load = LOAD_AFTER_GRACE;
+                        sync(player, s);
+                    }
+                }
+            }
+        }
+        s.tracked = true;
+        if (s.graceTicks > 0) s.graceTicks--;
+        if (!any) {
+            // Имплантов нет совсем: шкала падает до нуля, а 3 минуты действует окно «вернёшь импланты — 60».
+            if (s.hadImplants) s.graceTicks = GRACE_TICKS; // сняли последний имплант: пошли 3 минуты
+            if (s.load > 0 || s.reprieve > 0 || s.permanent) {
+                s.load = 0;
+                s.reprieve = 0;
+                java.util.Arrays.fill(s.given, 0);
+                if (s.permanent) endPermanent(player, s);
+                sync(player, s);
+            }
+        }
+        s.hadImplants = any;
+    }
+
+    private static boolean anyImplant(ServerPlayer p) {
+        for (int key = 0; key < K_COUNT; key++) {
+            if (!slotStack(p, key).isEmpty()) return true;
+        }
+        return false;
+    }
+
+    /** Закончить постоянную потерю контроля: клинки убираются, Сандевистан не работает сам. */
+    private static void endPermanent(ServerPlayer player, State s) {
+        s.permanent = false;
+        s.psychosisTicks = 0;
+        s.cooldown = 0;
+        player.setAttached(ModAttachments.BLADES_OUT, false);
+        setSpeedBoost(player, false);
+    }
+
+    /**
+     * Игрока взломали чипом «Взлом» (HackManager). Если он в постоянной потере контроля — контроль возвращается,
+     * шкала временно падает до 80, и у него есть время снять импланты, пока они отключены. Не снял — когда взлом
+     * кончится, шкале возвращается отсрочка (+20, не выше 100) поверх того, что убавилось при снятии имплантов.
+     */
+    public static void onHacked(ServerPlayer target) {
+        State s = STATES.get(target.getUUID());
+        if (s == null || !s.permanent) return;
+        endPermanent(target, s);
+        s.reprieve = Math.max(0, LOAD_MAX - LOAD_AFTER_HACK);
+        s.load = LOAD_AFTER_HACK;
+        s.overheatTicks = 0;
+        setOverheatPenalty(target, false);
+        sync(target, s);
+    }
+
+    /** Шанс малого приступа за одну секунду при данной шкале (в десятых долях единицы), 0..1. */
+    public static double episodeChance(int load) {
+        if (load >= LOAD_MAX) return 0.022;
+        if (load >= 600) return 0.012;
+        if (load >= 500) return 0.005;
+        if (load >= EPISODE_MIN_LOAD) return 0.002;
+        return 0.0;
+    }
+
+    private static void startEpisode(ServerPlayer player, State s) {
+        s.episodeTicks = EPISODE_TICKS;
+        sync(player, s);
+    }
+
+    /** Для будущих источников нагрузки (другие импланты): прибавить units единиц шкалы киберпсихоза (0..100). */
+    public static void addLoadUnits(ServerPlayer player, double units) {
+        State s = STATES.computeIfAbsent(player.getUUID(), id -> new State());
+        addLoad(player, s, resist(player, s, (int) Math.round(units * 10.0)));
     }
 
     /** Сколько ждать после перегрева (или после прошлой очистки), чтобы очистить одну ячейку: 3 минуты. */
@@ -155,7 +362,7 @@ public class SandevistanManager {
             s.active = true;
             s.ticksLeft = durationFor(s);
             setSpeedBoost(player, true); // + мир замедляется в 20 раз (TimeDilation)
-            sync(player, s);
+            if (!addLoadTracked(player, s, K_SAND, LOAD_ON_ACTIVATE)) sync(player, s); // включение: +5 единиц шкалы
         } else if (action == 3) {
             activateChip(player, s);
         } else if (action == 4) {
@@ -167,19 +374,12 @@ public class SandevistanManager {
                 return;
             }
             s.active = false;
-            // Ячейки киберпсихоза ручное выключение НЕ сбрасывает — только мини-игра (action 2).
+            // Шкалу киберпсихоза ручное выключение не меняет.
             s.cooldown = MANUAL_COOLDOWN;
             setSpeedBoost(player, false);
             sync(player, s);
         } else if (action == 2) {
-            // Мини-игра «Дефрагментация памяти» пройдена: очищаем одну ячейку, если время подошло.
-            // DEFRAG_SLACK — запас на небольшое расхождение часов клиента и сервера.
-            if (s.streak <= 0 || s.defragTicks > DEFRAG_SLACK || s.active || s.psychosisTicks > 0) {
-                sync(player, s); // отказ: клиент узнает настоящий остаток времени
-                return;
-            }
-            s.streak--;
-            s.defragTicks = s.streak > 0 ? DEFRAG_WAIT : 0;
+            // Мини-игра «Дефрагментация памяти» пока отключена: шкалу она не меняет.
             sync(player, s);
         }
     }
@@ -208,6 +408,12 @@ public class SandevistanManager {
     /** Во сколько раз уменьшается входящий урон, пока работает Сандевистан (и во время приступа). */
     public static final float DAMAGE_DIVISOR = 2.5F;
 
+    /** Включён ли у игрока Сандевистан прямо сейчас (сам приступ киберпсихоза сюда не входит). */
+    public static boolean isSandevistanRunning(ServerPlayer player) {
+        State s = STATES.get(player.getUUID());
+        return s != null && s.active;
+    }
+
     /** Работает ли сейчас у игрока Сандевистан (включая приступ) — тогда урон по нему уменьшен. */
     public static boolean isDamageReduced(ServerPlayer player) {
         State s = STATES.get(player.getUUID());
@@ -227,7 +433,7 @@ public class SandevistanManager {
         return ImplantSlot.isImplant(player.getAttachedOrCreate(ModAttachments.IMPLANT)) && !HackState.isHacked(player);
     }
 
-    /** Достать клинки богомола или убрать (клавиша M). Доставание добавляет нагрузку киберпсихоза за каждый клинок. */
+    /** Достать клинки богомола или убрать (клавиша M). Каждый доставленный клинок даёт +3 к шкале киберпсихоза (носить — бесплатно). */
     private static void toggleBlades(ServerPlayer player, State s) {
         if (s.psychosisTicks > 0) return; // в приступе клинки управляются не тобой: достаны до его конца
         boolean out = player.getAttachedOrCreate(ModAttachments.BLADES_OUT);
@@ -242,16 +448,8 @@ public class SandevistanManager {
         player.setAttached(ModAttachments.BLADES_OUT, true);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 ModSounds.BLADE_EXTEND, SoundSource.PLAYERS, 1.0F, 1.0F);
-        s.bladeLoad += blades * MantisBlades.LOAD_TENTHS_PER_BLADE;
-        while (s.bladeLoad >= 10) {
-            s.bladeLoad -= 10;
-            if (s.streak + 1 >= PSYCHOSIS_STREAK) { // шкала заполнилась — приступ
-                startPsychosis(player, s);
-                break;
-            }
-            s.streak++;
-            s.defragTicks = DEFRAG_WAIT;
-        }
+        if (MantisBlades.hasLeft(player)) addLoadTracked(player, s, K_HAND_L, LOAD_BLADE_EXTEND);
+        if (MantisBlades.hasRight(player)) addLoadTracked(player, s, K_HAND_R, LOAD_BLADE_EXTEND);
         sync(player, s);
     }
 
@@ -264,18 +462,25 @@ public class SandevistanManager {
         s.overtime = false;
         s.chipTicks = 0;
         s.cooldown = 0;
-        s.streak = 0;
+        s.load = 0;
+        s.loadTimer = 0;
+        s.episodeTicks = 0;
+        s.episodeTimer = 0;
         s.defragTicks = 0;
         s.overheatTicks = 0;
         s.psychosisTicks = 0;
+        s.permanent = false; // умер — контроль вернулся
+        s.reprieve = 0;
+        s.graceTicks = 0;
+        java.util.Arrays.fill(s.given, 0);
         setSpeedBoost(player, false);
         setOverheatPenalty(player, false);
         sync(player, s);
     }
 
     private static void sync(ServerPlayer player, State s) {
-        ServerPlayNetworking.send(player, new StatePayload(s.active, s.ticksLeft, s.streak, s.overheatTicks, s.psychosisTicks,
-                s.defragTicks));
+        ServerPlayNetworking.send(player, new StatePayload(s.active, s.ticksLeft, s.load, s.overheatTicks, s.psychosisTicks,
+                s.episodeTicks));
     }
 
     private static void tick(MinecraftServer server) {
@@ -294,9 +499,47 @@ public class SandevistanManager {
     private static void tickPlayers(MinecraftServer server) {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             State s = STATES.get(player.getUUID());
-            if (s == null) continue;
+            if (s == null) {
+                // Игрок с имплантами накапливает шкалу, даже если ни разу ничего не включал.
+                if (!anyImplant(player)) continue;
+                s = STATES.computeIfAbsent(player.getUUID(), id -> new State());
+            }
 
             tickChip(player, s);
+            trackImplants(player, s);
+
+            // Отсрочка от чипа «Взлом» кончилась (импланты снова работают): шкале возвращается то, что с неё сняли.
+            if (s.reprieve > 0 && !HackState.isHacked(player)) {
+                s.load = Math.min(LOAD_MAX, s.load + s.reprieve);
+                s.reprieve = 0;
+                if (s.load >= LOAD_MAX) startPsychosis(player, s, true);
+                else sync(player, s);
+            }
+
+            // Ношение: Сандевистан и подкожная броня дают по +0.1 к шкале каждую секунду (в приступе шкала стоит).
+            if (s.psychosisTicks <= 0 && ++s.loadTimer >= 20) {
+                s.loadTimer = 0;
+                if (hasImplant(player)) addLoadTracked(player, s, K_SAND, LOAD_PER_SECOND);
+                if (BodyImplants.armorOf(player) > 0) addLoadTracked(player, s, K_ARMOR, LOAD_PER_SECOND);
+            }
+
+            // Малый приступ: идёт — отсчитываем; не идёт, а шкала от 40 единиц — раз в секунду бросаем кубик.
+            // От 75 единиц любой малый приступ перерастает в приступ киберпсихоза. Пока длится «отсрочка» после
+            // взлома, приступов нет: у игрока есть время снять импланты.
+            if (s.episodeTicks > 0) {
+                if (s.load >= LOAD_ESCALATE && s.psychosisTicks <= 0) startPsychosis(player, s, false);
+                else if (--s.episodeTicks == 0) sync(player, s);
+            } else if (s.psychosisTicks <= 0 && s.reprieve <= 0 && s.load >= EPISODE_MIN_LOAD) {
+                if (++s.episodeTimer >= 20) {
+                    s.episodeTimer = 0;
+                    if (player.getRandom().nextDouble() < episodeChance(s.load)) {
+                        if (s.load >= LOAD_ESCALATE) startPsychosis(player, s, false);
+                        else startEpisode(player, s);
+                    }
+                }
+            } else {
+                s.episodeTimer = 0;
+            }
 
             if (s.psychosisTicks > 0) {
                 tickPsychosis(player, s);
@@ -305,12 +548,6 @@ public class SandevistanManager {
 
             if (!s.active) {
                 if (s.cooldown > 0) s.cooldown--;
-                // Отсчёт до очистки ячейки киберпсихоза (3 минуты).
-                if (s.streak > 0 && s.defragTicks > 0) {
-                    s.defragTicks--;
-                    // В конце — «можно проходить», и раз в 10 с сверяем часы с клиентом.
-                    if (s.defragTicks == 0 || s.defragTicks % 200 == 0) sync(player, s);
-                }
                 if (s.overheatTicks > 0) {
                     s.overheatTicks--;
                     if (s.overheatTicks == 0) {
@@ -367,21 +604,26 @@ public class SandevistanManager {
      * Приступ киберпсихоза: Сандевистан работает сам (ускорение, все вокруг замедляются),
      * управление у автопилота на клиенте. После приступа — обычный перегрев.
      */
-    private static void startPsychosis(ServerPlayer player, State s) {
+    private static void startPsychosis(ServerPlayer player, State s, boolean permanent) {
         s.active = false;
         s.overtime = false;
-        s.bladeLoad = 0;
-        // В приступе клинки достаются сами (без нагрузки киберпсихоза) и остаются до конца приступа.
+        // В приступе клинки достаются сами и остаются до конца приступа.
         boolean autoBlades = MantisBlades.count(player) > 0;
         if (autoBlades && !player.getAttachedOrCreate(ModAttachments.BLADES_OUT)) {
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     ModSounds.BLADE_EXTEND, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
         player.setAttached(ModAttachments.BLADES_OUT, autoBlades);
-        s.streak = 0; // приступ «сжигает» все ячейки
+        // Голос в начале приступа: его слышат все игроки в 15 блоках вокруг (дальность задана в ModSounds и sounds.json).
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                ModSounds.PSYCHOSIS_VOICE, SoundSource.PLAYERS, 1.0F, 1.0F);
+        s.permanent = permanent;
+        if (permanent) s.load = LOAD_MAX; // шкала на 100: контроль потерян насовсем
+        s.loadTimer = 0;
+        s.episodeTicks = 0; // большой приступ заменяет малый
         s.defragTicks = 0;
-        s.psychosisTicks = PSYCHOSIS_TICKS;
-        s.cooldown = PSYCHOSIS_TICKS + PSYCHOSIS_OVERHEAT_TICKS;
+        s.psychosisTicks = permanent ? PERMANENT_PSYCHOSIS_TICKS : PSYCHOSIS_TICKS;
+        s.cooldown = (permanent ? 0 : PSYCHOSIS_TICKS) + PSYCHOSIS_OVERHEAT_TICKS;
         s.overheatTicks = 0;
         setOverheatPenalty(player, false);
         setSpeedBoost(player, true); // Сандевистан во время приступа работает сам
@@ -389,6 +631,7 @@ public class SandevistanManager {
     }
 
     private static void tickPsychosis(ServerPlayer player, State s) {
+        if (s.permanent) return; // постоянная потеря контроля сама не кончается
         int age = PSYCHOSIS_TICKS - s.psychosisTicks;
         if (age % 5 == 0) {
             applyWorldEffects(player, age);
@@ -415,6 +658,7 @@ public class SandevistanManager {
         }
         if (NeuroChips.activeChip(player) != NeuroChips.OVERTIME) return;
         s.chipTicks = CHIP_ACTIVE_TICKS;
+        addLoadTracked(player, s, K_CHIP, LOAD_CHIP_OVERTIME); // овертайм: +7 к шкале
         syncChip(player, s);
     }
 
@@ -456,18 +700,12 @@ public class SandevistanManager {
     }
 
     /**
-     * Конец овертайма (чип кончился или игрок выключил Сандевистан): +2 полоски киберпсихоза (три — приступ)
-     * и 30 секунд без Сандевистана (откат со штрафами перегрева).
+     * Конец овертайма (чип кончился или игрок выключил Сандевистан): 30 секунд без Сандевистана
+     * (откат со штрафами перегрева). Шкалу киберпсихоза овертайм пока не меняет.
      */
     private static void overtimePenalty(ServerPlayer player, State s) {
         s.overtime = false;
-        s.streak += OVERTIME_STREAK;
-        if (s.streak >= PSYCHOSIS_STREAK) {
-            startPsychosis(player, s);
-            return;
-        }
         s.active = false;
-        s.defragTicks = DEFRAG_WAIT;
         s.cooldown = OVERTIME_LOCK_TICKS;
         s.overheatTicks = OVERTIME_LOCK_TICKS;
         setSpeedBoost(player, false);
@@ -492,24 +730,19 @@ public class SandevistanManager {
     public static void startHackCooldown(ServerPlayer player) {
         State s = STATES.computeIfAbsent(player.getUUID(), id -> new State());
         s.hackCooldown = HACK_COOLDOWN_TICKS;
+        addLoadTracked(player, s, K_CHIP, LOAD_CHIP_HACK); // взлом: +1 к шкале
         syncChip(player, s);
     }
 
     private static void overheat(ServerPlayer player, State s) {
-        if (s.streak + 1 >= PSYCHOSIS_STREAK) {
-            startPsychosis(player, s);
-            return;
-        }
         s.active = false;
-        s.streak++;
-        s.defragTicks = DEFRAG_WAIT; // очистить ячейку можно через 3 минуты после перегрева
         s.cooldown = OVERHEAT_TICKS;
         s.overheatTicks = OVERHEAT_TICKS;
         setSpeedBoost(player, false);
         // Без зелий: замедление и слабость — невидимые модификаторы,
         // а качание экрана, красный оттенок и глитчи рисует клиент по overheatTicks.
         setOverheatPenalty(player, true);
-        // Без текста над хотбаром: перегрев показывают голограммы, а счёт — шкала КИБЕРПСИХОЗ.
+        // Без текста над хотбаром: перегрев показывают голограммы, а шкалу КИБЕРПСИХОЗ перегрев пока не меняет.
         sync(player, s);
     }
 }

@@ -1,6 +1,7 @@
 package com.smi7i.sandevistan.client;
 
 import com.smi7i.sandevistan.ActiveUsersPayload;
+import com.smi7i.sandevistan.HeadImplantSlot;
 import com.smi7i.sandevistan.TimeDilation;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -94,6 +95,24 @@ public final class ClientZones {
     public static boolean inZone(Entity e) {
         if (CENTERS.isEmpty() || e instanceof Player || e.countPlayerPassengers() > 0) return false;
         return inZone(e.position());
+    }
+
+    /**
+     * Игрок с нейро интерфейсом в чужой зоне Сандевистана (свой Сандевистан не работает): он не замирает,
+     * но его движения замедлены в SLOWDOWN раз — так же, как у мобов в зоне.
+     */
+    public static boolean neuroSlowed() {
+        Minecraft mc = Minecraft.getInstance();
+        return mc.player != null && localInZone()
+                && !ClientSandevistanState.active && !ClientSandevistanState.psychosis()
+                && HeadImplantSlot.hasNeuroInterface(mc.player);
+    }
+
+    /** Во сколько раз медленнее идёт игрок с нейро интерфейсом в чужой зоне: обычный — в 20, продвинутый — в 10 раз. */
+    public static float slowFactor() {
+        Minecraft mc = Minecraft.getInstance();
+        boolean advanced = mc.player != null && HeadImplantSlot.hasAdvancedNeuro(mc.player);
+        return advanced ? 0.1F : 1.0F / TimeDilation.SLOWDOWN;
     }
 
     /** Находится ли сам игрок (камера) в зоне — тогда частицы и звуки вокруг тоже замедлены. */

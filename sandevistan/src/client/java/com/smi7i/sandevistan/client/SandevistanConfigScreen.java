@@ -22,8 +22,8 @@ public class SandevistanConfigScreen extends Screen {
     @Override
     protected void init() {
         SandevistanConfig c = SandevistanConfig.get();
-        int w = 220, h = 18, x = width / 2 - w / 2;
-        int y = 30, step = 19;
+        int w = 220, h = 16, x = width / 2 - w / 2;
+        int y = 30, step = 18;
 
         addRenderableWidget(Button.builder(themeLabel(), b -> {
             c.theme = HoloTheme.current().next().name();
@@ -37,9 +37,6 @@ public class SandevistanConfigScreen extends Screen {
         addRenderableWidget(slider(x, y, w, h, c.soundVolume / 1.5, v -> c.soundVolume = (float) (v * 1.5),
                 v -> String.format(Locale.ROOT, "Громкость звуков мода: %d%%", Math.round(v * 150))));
         y += step;
-        addRenderableWidget(slider(x, y, w, h, (c.afterimageSeconds - 0.5) / 4.5, v -> c.afterimageSeconds = (float) (0.5 + v * 4.5),
-                v -> String.format(Locale.ROOT, "Длина шлейфа: %.1f с", 0.5 + v * 4.5)));
-        y += step;
         addRenderableWidget(slider(x, y, w, h, (c.afterimageCount - 10) / 110.0, v -> c.afterimageCount = (int) Math.round(10 + v * 110),
                 v -> "Послеобразов максимум: " + Math.round(10 + v * 110)));
         y += step;
@@ -51,6 +48,9 @@ public class SandevistanConfigScreen extends Screen {
         y += step;
         addRenderableWidget(CycleButton.onOffBuilder(c.hitEffects).create(x, y, w, h,
                 Component.literal("Искры от ударов"), (b, v) -> c.hitEffects = v));
+        y += step;
+        addRenderableWidget(CycleButton.onOffBuilder(c.psychosisVoice).create(x, y, w, h,
+                Component.literal("Голос бабки при приступе"), (b, v) -> c.psychosisVoice = v));
         y += step;
         addRenderableWidget(CycleButton.onOffBuilder(c.slowWorldSounds).create(x, y, w, h,
                 Component.literal("Низкий звук мира в слоумо"), (b, v) -> c.slowWorldSounds = v));

@@ -8,6 +8,9 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 import org.lwjgl.glfw.GLFW;
 
@@ -15,8 +18,29 @@ import org.lwjgl.glfw.GLFW;
 public final class MantisBladeClient {
     private static KeyMapping toggle;
     private static boolean attackWasDown;
+    /** Каким клинком бить следующим, когда достаны оба (по очереди: правый, левый, правый, ...). */
+    private static boolean leftNext;
 
     private MantisBladeClient() {}
+
+    /**
+     * Какой рукой взмахнуть при ударе. Клинки достаны оба — бьют по очереди (левый и правый), достан один —
+     * бьёт он; клинки убраны — как обычно, основной рукой. Левый клинок — это левая рука игрока.
+     */
+    public static InteractionHand nextSwingHand(Player player) {
+        if (!MantisBlades.isExtended(player)) return InteractionHand.MAIN_HAND;
+        boolean left = MantisBlades.hasLeft(player);
+        boolean right = MantisBlades.hasRight(player);
+        boolean useLeft;
+        if (left && right) {
+            useLeft = leftNext;
+            leftNext = !leftNext;
+        } else {
+            useLeft = left;
+        }
+        boolean leftIsMain = player.getMainArm() == HumanoidArm.LEFT;
+        return useLeft == leftIsMain ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+    }
 
     public static void init(KeyMapping.Category category) {
         toggle = KeyMappingHelper.registerKeyMapping(

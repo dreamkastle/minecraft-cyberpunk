@@ -56,6 +56,26 @@ public class ModAttachments {
                     .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
     );
 
+    /** Слот импланта тела (подкожная броня). Синхронизируется со всеми, как и остальные слоты имплантов. */
+    public static final AttachmentType<ItemStack> BODY_IMPLANT = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "body_implant"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
+    /** Слот программного обеспечения (П.О): Л.Е.Д. Синхронизируется со всеми, как и остальные слоты. */
+    public static final AttachmentType<ItemStack> SOFTWARE = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("sandevistan", "software"),
+            builder -> builder
+                    .persistent(ItemStack.OPTIONAL_CODEC)
+                    .initializer(() -> ItemStack.EMPTY)
+                    .copyOnDeath()
+                    .syncWith(ItemStack.OPTIONAL_STREAM_CODEC, AttachmentSyncPredicate.all())
+    );
+
     /** Игровое время (тики), до которого импланты игрока отключены взломом. Не сохраняется, видно всем клиентам. */
     public static final AttachmentType<Long> HACKED_UNTIL = AttachmentRegistry.create(
             Identifier.fromNamespaceAndPath("sandevistan", "hacked_until"),

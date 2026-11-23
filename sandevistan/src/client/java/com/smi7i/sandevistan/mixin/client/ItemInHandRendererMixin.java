@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Отдельно от GameRendererMixin: с шейдерами Iris рисует руку своим путём, но через этот же метод.
  *
  * Достанные клинки богомола от первого лица: на время отрисовки рук подменяем пустую руку клинком, и игра рисует
- * его как обычный предмет в руке (с ударом, настройками display модели). Если в руке уже есть предмет, он остаётся.
+ * его как обычный предмет в руке (с ударом, настройками display модели). Если в руке есть предмет, клинок рисуется вместо него.
  */
 @Mixin(ItemInHandRenderer.class)
 public abstract class ItemInHandRendererMixin {
@@ -48,8 +48,9 @@ public abstract class ItemInHandRendererMixin {
         ItemStack newOff = rightMain ? leftBlade : rightBlade;
         sandevistan$savedMain = mainHandItem;
         sandevistan$savedOff = offHandItem;
-        if (mainHandItem.isEmpty() && !newMain.isEmpty()) mainHandItem = newMain;
-        if (offHandItem.isEmpty() && !newOff.isEmpty()) offHandItem = newOff;
+        // Клинок рисуется вместо предмета в руке (предмет в заблокированном слоте всё равно не используется).
+        if (!newMain.isEmpty()) mainHandItem = newMain;
+        if (!newOff.isEmpty()) offHandItem = newOff;
         sandevistan$swapped = true;
     }
 

@@ -15,8 +15,6 @@ public final class SandevistanConfig {
     public float filterStrength = 1.0F;
     /** Громкость всех звуков мода (костюм, способности, Сандевистан): 0 — тишина, 1 — обычно, 1.5 — громче. */
     public float soundVolume = 1.0F;
-    /** Сколько секунд живёт послеобраз. */
-    public float afterimageSeconds = 2.5F;
     /** Максимум послеобразов одновременно (на всех игроков). */
     public int afterimageCount = 60;
     /** Сила свечения импланта при работе: 1 — обычно. */
@@ -31,6 +29,8 @@ public final class SandevistanConfig {
     public boolean overheatEffects = false;
     /** Звуки при получении полосок киберпсихоза (перегрев: «глюк» и искажения). По умолчанию выключены. */
     public boolean overheatSounds = false;
+    /** Голос бабки в начале приступа киберпсихоза (слышно в 15 блоках вокруг). Выключил — не слышишь его ни у себя, ни у других. */
+    public boolean psychosisVoice = true;
     /** Звуки мира ниже и тягучее в слоумо. */
     public boolean slowWorldSounds = true;
 

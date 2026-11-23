@@ -555,5 +555,13 @@
         "name": "sandevistan:psychosis_calm"
       }
     ]
+  },
+  "psychosis_voice": {
+    "sounds": [
+      {
+        "name": "sandevistan:psychosis_voice",
+        "attenuation_distance": 15
+      }
+    ]
   }
 }

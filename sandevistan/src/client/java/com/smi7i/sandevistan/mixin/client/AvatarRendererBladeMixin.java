@@ -27,6 +27,9 @@ public abstract class AvatarRendererBladeMixin {
                 && !com.smi7i.sandevistan.ModAttachments.hasMech(entity);
         boolean left = out && MantisBlades.hasLeft((Player) entity);
         boolean right = out && MantisBlades.hasRight((Player) entity);
+        // Предмет в руке под клинком не рисуем: клинок показывается вместо него.
+        if (left) state.leftHandItemState.clear();
+        if (right) state.rightHandItemState.clear();
         apply(state, MantisBladeLayer.BLADE_LEFT, left ? new ItemStack(ModItems.BLADE_LEFT) : null,
                 ItemDisplayContext.THIRD_PERSON_LEFT_HAND, entity);
         apply(state, MantisBladeLayer.BLADE_RIGHT, right ? new ItemStack(ModItems.BLADE_RIGHT) : null,

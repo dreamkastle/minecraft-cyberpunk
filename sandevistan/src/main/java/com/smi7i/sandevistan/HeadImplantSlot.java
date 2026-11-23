@@ -33,6 +33,12 @@ public class HeadImplantSlot extends Slot {
         return hasNeuroInterfaceRaw(player) && !HackState.isHacked(player);
     }
 
+    /** Работает ли у игрока ПРОДВИНУТЫЙ нейро интерфейс (надет и игрок не взломан). */
+    public static boolean hasAdvancedNeuro(Player player) {
+        return player.getAttachedOrCreate(ModAttachments.HEAD_IMPLANT).is(ModItems.ADVANCED_NEURO_INTERFACE)
+                && !HackState.isHacked(player);
+    }
+
     /** Надет ли нейро интерфейс в слоте головы (даже если он сейчас отключён взломом). */
     public static boolean hasNeuroInterfaceRaw(Player player) {
         return isHeadImplant(player.getAttachedOrCreate(ModAttachments.HEAD_IMPLANT));

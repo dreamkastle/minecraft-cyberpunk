@@ -9,10 +9,11 @@ import net.minecraft.resources.Identifier;
 /**
  * Сервер -> клиент: состояние импланта. overheatTicks — сколько ещё длится перегрев (0 = нет),
  * psychosisTicks — сколько ещё длится приступ киберпсихоза (0 = нет),
- * defragTicks — сколько ещё ждать, чтобы очистить одну ячейку киберпсихоза мини-игрой (0 = можно, если есть что чистить).
+ * load — шкала киберпсихоза в десятых долях единицы (0..1000 = 0..100),
+ * episodeTicks — сколько ещё длится малый приступ (0 = нет): игрок не двигается, звуки тише, перед глазами видео.
  */
-public record StatePayload(boolean active, int ticksLeft, int streak, int overheatTicks, int psychosisTicks,
-                           int defragTicks)
+public record StatePayload(boolean active, int ticksLeft, int load, int overheatTicks, int psychosisTicks,
+                           int episodeTicks)
         implements CustomPacketPayload {
     public static final Type<StatePayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath("sandevistan", "state"));
@@ -20,10 +21,10 @@ public record StatePayload(boolean active, int ticksLeft, int streak, int overhe
     public static final StreamCodec<RegistryFriendlyByteBuf, StatePayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, StatePayload::active,
             ByteBufCodecs.VAR_INT, StatePayload::ticksLeft,
-            ByteBufCodecs.VAR_INT, StatePayload::streak,
+            ByteBufCodecs.VAR_INT, StatePayload::load,
             ByteBufCodecs.VAR_INT, StatePayload::overheatTicks,
             ByteBufCodecs.VAR_INT, StatePayload::psychosisTicks,
-            ByteBufCodecs.VAR_INT, StatePayload::defragTicks,
+            ByteBufCodecs.VAR_INT, StatePayload::episodeTicks,
             StatePayload::new);
 
     @Override

@@ -9,7 +9,8 @@ public class ClientSandevistanState {
 
     public static boolean active;
     public static int ticksLeft;
-    public static int streak;
+    /** Шкала киберпсихоза в десятых долях единицы: 0..1000 (= 0..100). */
+    public static int load;
     /** Сколько тиков ещё длится перегрев (приходит с сервера, дальше считается здесь). 0 = нет перегрева. */
     public static int overheatTicks;
     /** Сколько тиков ещё длится приступ киберпсихоза. 0 = нет. */
@@ -47,22 +48,32 @@ public class ClientSandevistanState {
     /** За сколько тиков до конца перегрева эффекты начинают плавно уходить (60 = 3 секунды). */
     public static final int OVERHEAT_FADE_TICKS = 60;
 
-    /** Сколько тиков ещё ждать до «Дефрагментации памяти» (очистки одной ячейки киберпсихоза). */
-    public static int defragTicks;
+    /** Сколько тиков ещё длится малый приступ (приходит с сервера, дальше считается здесь). 0 = нет. */
+    public static int episodeTicks;
 
-    public static void update(boolean active, int ticksLeft, int streak, int overheatTicks, int psychosisTicks,
-                              int defragTicks) {
+    public static void update(boolean active, int ticksLeft, int load, int overheatTicks, int psychosisTicks,
+                              int episodeTicks) {
         ClientSandevistanState.active = active;
         ClientSandevistanState.ticksLeft = ticksLeft;
-        ClientSandevistanState.streak = streak;
+        ClientSandevistanState.load = load;
         ClientSandevistanState.overheatTicks = overheatTicks;
         ClientSandevistanState.psychosisTicks = psychosisTicks;
-        ClientSandevistanState.defragTicks = defragTicks;
+        ClientSandevistanState.episodeTicks = episodeTicks;
     }
 
-    /** Можно ли сейчас пройти «Дефрагментацию памяти» и очистить ячейку. */
+    /** «Дефрагментация памяти» пока отключена (шкала киберпсихоза от неё не меняется). */
     public static boolean defragReady() {
-        return streak > 0 && defragTicks <= 0 && !active && !psychosis();
+        return false;
+    }
+
+    /** Идёт ли сейчас малый приступ (игрок не двигается, звуки тише, перед глазами видео). */
+    public static boolean episode() {
+        return episodeTicks > 0;
+    }
+
+    /** Постоянная потеря контроля (шкала дошла до 100): сервер держит психоз «вечным», видео и музыка идут по кругу. */
+    public static boolean permanentPsychosis() {
+        return psychosisTicks > SandevistanManager.PSYCHOSIS_TICKS;
     }
 
     /** Идёт ли сейчас приступ киберпсихоза. */
@@ -105,8 +116,7 @@ public class ClientSandevistanState {
         prevOverheat = overheat;
         if (overheatTicks > 0) overheatTicks--;
         if (psychosisTicks > 0) psychosisTicks--;
-        // На паузе (Esc в одиночной игре) сервер стоит — и наш отсчёт тоже стоит, иначе они разойдутся.
-        if (!active && streak > 0 && defragTicks > 0 && !net.minecraft.client.Minecraft.getInstance().isPaused()) defragTicks--;
+        if (episodeTicks > 0 && !net.minecraft.client.Minecraft.getInstance().isPaused()) episodeTicks--;
         // Быстро накатывает, держится, в последние OVERHEAT_FADE_TICKS плавно уходит. Во время приступа — полный красный.
         // Эффекты перегрева (при получении полосок) можно отключить в настройках; сам приступ они не касаются.
         if (!SandevistanConfig.get().overheatEffects) {

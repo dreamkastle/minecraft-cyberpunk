@@ -15,6 +15,7 @@
        "KeyboardInputMixin",
        "MouseHandlerMixin",
        "MinecraftMixin",
+       "MinecraftBladeSwingMixin",
        "AvatarRendererExtractMixin",
        "ItemStackRenderStateAccessor",
        "LayerRenderStateInvoker",
