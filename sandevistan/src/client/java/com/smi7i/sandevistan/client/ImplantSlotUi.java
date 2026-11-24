@@ -28,7 +28,7 @@ public final class ImplantSlotUi {
         draw(g, x, y, filled, timeMs, hand ? 1 : 0);
     }
 
-    /** kind: 0 — позвоночник, 1 — рука, 2 — голова (силуэт в пустом слоте). */
+    /** kind: 0 — позвоночник, 1 — рука, 2 — голова, 3 — чип, 4 — тело (силуэт в пустом слоте). */
     public static void draw(GuiGraphicsExtractor g, int x, int y, boolean filled, long timeMs, int kind) {
         float pulse = 0.5F + 0.5F * Mth.sin(timeMs / 380.0F);
         int accent = filled ? HoloTheme.glow() : HoloTheme.accent();
@@ -59,6 +59,22 @@ public final class ImplantSlotUi {
                 g.fill(x + 5 + p * 3, y + 2, x + 6 + p * 3, y + 4, ghost);
                 g.fill(x + 5 + p * 3, y + 14, x + 6 + p * 3, y + 16, ghost);
             }
+        } else if (!filled && kind == 5) {
+            int ghost = HoloUi.argb(0.22F, HoloTheme.accent());
+            g.fill(x + 3, y + 4, x + 6, y + 5, ghost);              // скобка «{»
+            g.fill(x + 3, y + 4, x + 4, y + 14, ghost);
+            g.fill(x + 3, y + 13, x + 6, y + 14, ghost);
+            g.fill(x + 12, y + 4, x + 15, y + 5, ghost);            // скобка «}»
+            g.fill(x + 14, y + 4, x + 15, y + 14, ghost);
+            g.fill(x + 12, y + 13, x + 15, y + 14, ghost);
+            g.fill(x + 7, y + 6, x + 11, y + 7, ghost);             // «строки кода»
+            g.fill(x + 7, y + 9, x + 11, y + 10, ghost);
+        } else if (!filled && kind == 4) {
+            int ghost = HoloUi.argb(0.22F, HoloTheme.accent());
+            g.fill(x + 3, y + 2, x + 15, y + 5, ghost);             // плечи
+            g.fill(x + 5, y + 5, x + 13, y + 16, ghost);            // торс
+            g.fill(x + 6, y + 8, x + 12, y + 9, HoloUi.argb(0.35F, 0x0A1414));   // «рёбра» (пластины брони)
+            g.fill(x + 6, y + 11, x + 12, y + 12, HoloUi.argb(0.35F, 0x0A1414));
         } else if (!filled && kind == 2) {
             int ghost = HoloUi.argb(0.22F, HoloTheme.accent());
             g.fill(x + 5, y + 2, x + 13, y + 10, ghost);            // голова

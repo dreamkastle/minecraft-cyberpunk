@@ -1,3 +1,8 @@
 {
-  "values": ["sandevistan:chip_overtime", "sandevistan:chip_hack"]
+  "values": [
+    "sandevistan:chip_overtime",
+    "sandevistan:chip_hack",
+    "sandevistan:chip_hack_1",
+    "sandevistan:chip_hack_2"
+  ]
 }

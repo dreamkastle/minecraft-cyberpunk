@@ -18,6 +18,8 @@ public class ImplantInit implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(HackResultPayload.TYPE, HackResultPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(HackWarningPayload.TYPE, HackWarningPayload.CODEC);
         HackManager.init();
+        PayloadTypeRegistry.serverboundPlay().register(BladeSwingPayload.TYPE, BladeSwingPayload.CODEC);
+        MantisBlades.init();
         PayloadTypeRegistry.clientboundPlay().register(ActiveUsersPayload.TYPE, ActiveUsersPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(FreezePayload.TYPE, FreezePayload.CODEC);
 
@@ -25,6 +27,7 @@ public class ImplantInit implements ModInitializer {
                 (payload, context) -> SandevistanManager.onAction(context.player(), payload.action()));
 
         HandImplants.init(); // импланты рук: бонус урона и скорость
+        BodyImplants.init(); // имплант тела: подкожная броня
         SandevistanManager.init();
         com.smi7i.sandevistan.mech.MechManager.init(); // костюм-мех: вызов клавишей и посадка по ПКМ
     }

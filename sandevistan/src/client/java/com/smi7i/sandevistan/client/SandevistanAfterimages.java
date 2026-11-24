@@ -25,8 +25,8 @@ public class SandevistanAfterimages {
     // ===== Настройки =====
     /** Раз в сколько тиков делать снимок (20 тиков = 1 секунда). */
     public static final int INTERVAL_TICKS = 2;
-    /** Сколько тиков живёт один послеобраз (50 = 2.5 секунды). */
-    public static int lifetimeTicks() { return Math.max(10, Math.round(SandevistanConfig.get().afterimageSeconds * 20)); } // из настроек (по умолчанию 50 = 2.5 с)
+    /** Сколько тиков живёт один послеобраз: ровно 4 секунды, не настраивается. */
+    public static int lifetimeTicks() { return 80; }
     /** Какую часть жизни послеобраз держится плотным, прежде чем начать таять (0.6 = 60%). */
     public static final float HOLD_PART = 0.6F;
     /** Максимум послеобразов одновременно. */
@@ -178,6 +178,13 @@ public class SandevistanAfterimages {
 
         // Свой игрок (в виде от третьего лица): пока виден фильтр, рисуем его поверх фильтра.
         Minecraft mc = Minecraft.getInstance();
+        // Игрок с нейро интерфейсом в чужой зоне не видит самого владельца Сандевистана, пока тот ускорен: настоящее тело
+        // убираем из кадра, остаются только его послеобразы (ниже).
+        if (mc.player != null && ClientZones.neuroSlowed()) {
+            int selfId = mc.player.getId();
+            worldList.removeIf(st -> st instanceof AvatarRenderState av && !(st instanceof AfterimageRenderState)
+                    && av.id != selfId && (ClientZones.isActive(av.id) || ClientZones.isPsychosis(av.id)));
+        }
         if (ownPass && mc.player != null && ClientSandevistanState.anyFilter(partial)) {
             int playerId = mc.player.getId();
             for (Iterator<EntityRenderState> it = worldList.iterator(); it.hasNext(); ) {

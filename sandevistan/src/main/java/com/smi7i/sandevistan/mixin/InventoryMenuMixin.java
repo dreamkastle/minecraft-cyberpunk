@@ -1,5 +1,7 @@
 package com.smi7i.sandevistan.mixin;
 
+import com.smi7i.sandevistan.BodyImplantSlot;
+import com.smi7i.sandevistan.SoftwareSlot;
 import com.smi7i.sandevistan.HandImplantContainer;
 import com.smi7i.sandevistan.HandImplantSlot;
 import com.smi7i.sandevistan.HeadImplantSlot;
@@ -32,13 +34,17 @@ public abstract class InventoryMenuMixin {
         // Слоты имплантов живут на отдельной странице «Импланты»; на обычной странице инвентаря они убраны за экран,
         // а клиентский код (ImplantPage) ставит их на место при переключении страницы.
         ((AbstractContainerMenuInvoker) (Object) this)
-                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_1), OFFSCREEN, OFFSCREEN));
+                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_1), OFFSCREEN, OFFSCREEN, true));
         ((AbstractContainerMenuInvoker) (Object) this)
-                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_2), OFFSCREEN, OFFSCREEN));
+                .sandevistan$addSlot(new HandImplantSlot(new HandImplantContainer(owner, ModAttachments.HAND_IMPLANT_2), OFFSCREEN, OFFSCREEN, false));
         ((AbstractContainerMenuInvoker) (Object) this)
                 .sandevistan$addSlot(new HeadImplantSlot(new HandImplantContainer(owner, ModAttachments.HEAD_IMPLANT), OFFSCREEN, OFFSCREEN));
         ((AbstractContainerMenuInvoker) (Object) this)
                 .sandevistan$addSlot(new NeuroChipSlot(new HandImplantContainer(owner, ModAttachments.CHIP), OFFSCREEN, OFFSCREEN));
+        ((AbstractContainerMenuInvoker) (Object) this)
+                .sandevistan$addSlot(new BodyImplantSlot(new HandImplantContainer(owner, ModAttachments.BODY_IMPLANT), OFFSCREEN, OFFSCREEN));
+        ((AbstractContainerMenuInvoker) (Object) this)
+                .sandevistan$addSlot(new SoftwareSlot(new HandImplantContainer(owner, ModAttachments.SOFTWARE), OFFSCREEN, OFFSCREEN));
     }
 
     @Inject(method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
@@ -52,15 +58,20 @@ public abstract class InventoryMenuMixin {
 
         boolean fromImplant = index == IMPLANT_SLOT
                 || index == HandImplantSlot.MENU_INDEX_1 || index == HandImplantSlot.MENU_INDEX_2
-                || index == HeadImplantSlot.MENU_INDEX || index == NeuroChipSlot.MENU_INDEX;
+                || index == HeadImplantSlot.MENU_INDEX || index == NeuroChipSlot.MENU_INDEX
+                || index == BodyImplantSlot.MENU_INDEX || index == SoftwareSlot.MENU_INDEX;
         boolean toImplant = !fromImplant && ImplantSlot.isImplant(stack) && !menu.getSlot(IMPLANT_SLOT).hasItem();
-        boolean toHand = !fromImplant && HandImplantSlot.isHandImplant(stack)
+        boolean toHand = !fromImplant && HandImplantSlot.isAnyHandItem(stack)
                 && (!menu.getSlot(HandImplantSlot.MENU_INDEX_1).hasItem() || !menu.getSlot(HandImplantSlot.MENU_INDEX_2).hasItem());
         boolean toHead = !fromImplant && HeadImplantSlot.isHeadImplant(stack)
                 && !menu.getSlot(HeadImplantSlot.MENU_INDEX).hasItem();
         boolean toChip = !fromImplant && NeuroChipSlot.isChip(stack)
                 && !menu.getSlot(NeuroChipSlot.MENU_INDEX).hasItem();
-        if (!fromImplant && !toImplant && !toHand && !toHead && !toChip) return;
+        boolean toBody = !fromImplant && BodyImplantSlot.isBodyImplant(stack)
+                && !menu.getSlot(BodyImplantSlot.MENU_INDEX).hasItem();
+        boolean toSoftware = !fromImplant && SoftwareSlot.isSoftware(stack)
+                && !menu.getSlot(SoftwareSlot.MENU_INDEX).hasItem();
+        if (!fromImplant && !toImplant && !toHand && !toHead && !toChip && !toBody && !toSoftware) return;
 
         ItemStack original = stack.copy();
         boolean moved;
@@ -72,6 +83,10 @@ public abstract class InventoryMenuMixin {
             moved = invoker.sandevistan$moveItemStackTo(stack, HandImplantSlot.MENU_INDEX_1, HandImplantSlot.MENU_INDEX_2 + 1, false);
         } else if (toHead) {
             moved = invoker.sandevistan$moveItemStackTo(stack, HeadImplantSlot.MENU_INDEX, HeadImplantSlot.MENU_INDEX + 1, false);
+        } else if (toSoftware) {
+            moved = invoker.sandevistan$moveItemStackTo(stack, SoftwareSlot.MENU_INDEX, SoftwareSlot.MENU_INDEX + 1, false);
+        } else if (toBody) {
+            moved = invoker.sandevistan$moveItemStackTo(stack, BodyImplantSlot.MENU_INDEX, BodyImplantSlot.MENU_INDEX + 1, false);
         } else {
             moved = invoker.sandevistan$moveItemStackTo(stack, NeuroChipSlot.MENU_INDEX, NeuroChipSlot.MENU_INDEX + 1, false);
         }

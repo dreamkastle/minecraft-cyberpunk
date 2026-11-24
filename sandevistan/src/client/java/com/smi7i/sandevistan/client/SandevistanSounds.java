@@ -88,7 +88,8 @@ public final class SandevistanSounds {
             play(mc, ModSounds.EXIT, EXIT_VOLUME); // приступ закончился — Сандевистан отключился сам
         }
         // Перегрев: сразу после звука выключения — «заглючил процессор», дальше «искажения кадра».
-        boolean overheating = ClientSandevistanState.overheatTicks > 0;
+        // Звуки перегрева (при получении полосок) можно отключить в настройках; звуки приступа и выключения остаются.
+        boolean overheating = ClientSandevistanState.overheatTicks > 0 && SandevistanConfig.get().overheatSounds;
         if (overheating && !prevOverheating && !psychosis) {
             glitchDelay = OVERHEAT_GLITCH_DELAY;
             distortionTimer = 50 + R.nextInt(50);
@@ -96,7 +97,7 @@ public final class SandevistanSounds {
         if (glitchDelay > 0 && --glitchDelay == 0) {
             play(mc, ModSounds.PSYCHOSIS_START, PSYCHOSIS_START_VOLUME);
         }
-        if ((psychosis || overheating) && --distortionTimer <= 0) {
+        if (overheating && --distortionTimer <= 0) {
             play(mc, ModSounds.PSYCHOSIS_DISTORTION, DISTORTION_VOLUME);
             distortionTimer = DISTORTION_MIN_GAP + R.nextInt(DISTORTION_MAX_GAP - DISTORTION_MIN_GAP + 1);
         }

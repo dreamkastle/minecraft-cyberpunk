@@ -223,10 +223,10 @@ public final class PsychosisController {
         float facing = Math.abs(Mth.wrapDegrees(desiredYaw - player.getYRot()));
         if (dist <= ATTACK_REACH && facing < 40.0F && player.getAttackStrengthScale(0.5F) >= attackThreshold) {
             mc.gameMode.attack(player, target);
-            player.swing(InteractionHand.MAIN_HAND);
+            player.swing(MantisBladeClient.nextSwingHand(player));
             attackThreshold = 0.7F + R.nextFloat() * 0.3F;
         } else if (dist < 5.0 && R.nextFloat() < AIR_SWING_CHANCE) {
-            player.swing(InteractionHand.MAIN_HAND); // удар по воздуху
+            player.swing(MantisBladeClient.nextSwingHand(player)); // удар по воздуху
         }
     }
 

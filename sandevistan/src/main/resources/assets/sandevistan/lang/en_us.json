@@ -6,6 +6,9 @@
   "item.sandevistan.mech_remote": "Suit Remote",
   "item.sandevistan.chip_overtime": "Overtime Chip",
   "item.sandevistan.chip_hack": "Hack Chip",
+  "item.sandevistan.mantis_blade_left": "Left Mantis Blade",
+  "item.sandevistan.mantis_blade_right": "Right Mantis Blade",
+  "key.sandevistan.blades": "Mantis Blades (extend/retract)",
   "key.sandevistan.chip": "Neural Interface Chip (activate)",
   "key.sandevistan.neuro": "Neural Interface (target list)",
   "key.category.sandevistan.main": "Sandevistan",
@@ -24,5 +27,16 @@
   "key.sandevistan.mech_showdown": "Mech: one last showdown (full gauge)",
   "key.sandevistan.mech_eject": "Mech: eject (fatal, hold)",
   "key.sandevistan.mech_inject": "Mech: inject from syringes (refill to 1 min)",
-  "entity.sandevistan.mech_suit": "Mech suit"
+  "entity.sandevistan.mech_suit": "Mech suit",
+  "item.sandevistan.armor_implant_1": "Subdermal Armor Mk.I",
+  "item.sandevistan.armor_implant_2": "Subdermal Armor Mk.II",
+  "item.sandevistan.armor_implant_3": "Subdermal Armor Mk.III",
+  "item.sandevistan.advanced_neuro_interface": "Advanced Neural Interface",
+  "item.sandevistan.led_1": "I.C.E. Mk.I",
+  "item.sandevistan.led_2": "I.C.E. Mk.II",
+  "item.sandevistan.led_3": "I.C.E. Mk.III",
+  "item.sandevistan.led_4": "I.C.E. Mk.IV",
+  "item.sandevistan.admin_sandevistan": "Admin Sandevistan",
+  "item.sandevistan.chip_hack_1": "Hack Chip Mk 1",
+  "item.sandevistan.chip_hack_2": "Hack Chip Mk 2"
 }

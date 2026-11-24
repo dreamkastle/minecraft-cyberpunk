@@ -1,3 +1,6 @@
 {
-  "values": ["sandevistan:neuro_interface"]
+  "values": [
+    "sandevistan:neuro_interface",
+    "sandevistan:advanced_neuro_interface"
+  ]
 }

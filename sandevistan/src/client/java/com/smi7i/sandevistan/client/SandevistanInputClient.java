@@ -34,13 +34,15 @@ public class SandevistanInputClient implements ClientModInitializer {
         com.smi7i.sandevistan.client.mech.MechClient.init(category); // костюм-мех: клавиша B, отрисовка, подсказка
         NeuroHud.init(category);   // нейро интерфейс: клавиша K и список целей
         NeuroChipHud.init(category); // чипы нейро интерфейса: клавиша I и мини-панель
+        PsychosisMedia.init();     // киберпсихоз: видео перед глазами, тихие звуки игры, спокойная музыка
+        MantisBladeClient.init(category); // клинки богомола: клавиша M и отрисовка на руках
         ImplantPage.init();        // страница «Импланты» в инвентаре
         SETTINGS = KeyMappingHelper.registerKeyMapping(
                 new KeyMapping("key.sandevistan.settings", InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
 
         ClientPlayNetworking.registerGlobalReceiver(StatePayload.TYPE,
-                (payload, context) -> ClientSandevistanState.update(payload.active(), payload.ticksLeft(), payload.streak(),
-                        payload.overheatTicks(), payload.psychosisTicks(), payload.defragTicks()));
+                (payload, context) -> ClientSandevistanState.update(payload.active(), payload.ticksLeft(), payload.load(),
+                        payload.overheatTicks(), payload.psychosisTicks(), payload.episodeTicks()));
 
         SandevistanHud.init();
         PsychosisController.init();
@@ -103,16 +105,8 @@ public class SandevistanInputClient implements ClientModInitializer {
             client.gui.setScreen(new SandevistanConfigScreen(null));
         }
         while (DEFRAG.consumeClick()) {
-            if (ClientSandevistanState.defragReady()) {
-                client.gui.setScreen(new MemoryDefragScreen());
-            } else if (ClientSandevistanState.streak <= 0) {
-                HoloToast.show("ПАМЯТЬ В ПОРЯДКЕ", () -> "нечего очищать", 0x2AE0C0);
-            } else {
-                HoloToast.show("ДЕФРАГМЕНТАЦИЯ НЕДОСТУПНА", () -> {
-                    int s = (ClientSandevistanState.defragTicks + 19) / 20;
-                    return String.format("доступна через %d:%02d", s / 60, s % 60);
-                }, 0xFF3A4A);
-            }
+            // Мини-игра «Дефрагментация памяти» пока отключена.
+            HoloToast.show("ДЕФРАГМЕНТАЦИЯ ОТКЛЮЧЕНА", () -> "временно недоступна", 0xFF3A4A);
         }
 
         ClientSandevistanState.tickVisuals();

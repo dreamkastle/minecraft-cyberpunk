@@ -10,12 +10,21 @@ import net.minecraft.sounds.SoundEvent;
  * Где какой играет — client/SandevistanSounds.
  */
 public class ModSounds {
+    /** Клинки богомола: доставание (заглушка, синтезирована — замени своим файлом) и удар (3 варианта, игра берёт случайный). */
+    public static final SoundEvent BLADE_EXTEND = register("blade_extend");
+    public static final SoundEvent BLADE_HIT = register("blade_hit");
+    /** Взмах клинков мимо цели (3 варианта, игра берёт случайный). Играет только при промахе, при попадании — BLADE_HIT. */
+    public static final SoundEvent BLADE_MISS = register("blade_miss");
+    /** Спокойная музыка на фоне киберпсихоза (30 секунд, обрезана из calmmusic.mp3). */
+    public static final SoundEvent PSYCHOSIS_CALM = register("psychosis_calm");
     /** Вход в состояние Сандевистана (включение). */
     public static final SoundEvent START = register("start");
     /** Сандевистан закончился сам (через 10 секунд, перегрев). */
     public static final SoundEvent EXIT = register("exit");
     /** Гул во время действия (по кругу). */
     public static final SoundEvent HUM = register("hum");
+    /** Голос в начале киберпсихоза (слышно всем в 15 блоках вокруг игрока, у которого начался приступ). */
+    public static final SoundEvent PSYCHOSIS_VOICE = registerFixedRange("psychosis_voice", 15.0F);
     /** Начало киберпсихоза: «заглючил процессор». */
     public static final SoundEvent PSYCHOSIS_START = register("psychosis_start");
     /** Во время киберпсихоза: «искажение кадра». */
@@ -76,6 +85,12 @@ public class ModSounds {
     public static final SoundEvent MECH_METEOR_LAUNCH = register("mech_meteor_launch");
     public static final SoundEvent MECH_METEOR_SLAM = register("mech_meteor_slam");
     public static final SoundEvent MECH_HOLLOW = register("mech_hollow");
+
+    /** Звук с жёсткой дальностью: сервер рассылает его только игрокам не дальше range блоков. */
+    private static SoundEvent registerFixedRange(String name, float range) {
+        Identifier id = Identifier.fromNamespaceAndPath("sandevistan", name);
+        return Registry.register(BuiltInRegistries.SOUND_EVENT, id, SoundEvent.createFixedRangeEvent(id, range));
+    }
 
     private static SoundEvent register(String name) {
         Identifier id = Sandevistan.id(name);

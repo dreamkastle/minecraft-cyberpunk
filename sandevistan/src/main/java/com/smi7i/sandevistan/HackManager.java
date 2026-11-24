@@ -20,6 +20,8 @@ public final class HackManager {
     public static final int BIT_NEURO = 8;
     public static final int BIT_CHIP_OVERTIME = 16;
     public static final int BIT_CHIP_HACK = 32;
+    public static final int BIT_BLADE_LEFT = 64;
+    public static final int BIT_BLADE_RIGHT = 128;
 
     public static final double RADIUS = 500.0;
     /** Сколько тиков отключены импланты после успешного взлома: 40 секунд. */
@@ -46,10 +48,12 @@ public final class HackManager {
         if (ImplantSlot.isImplant(p.getAttachedOrCreate(ModAttachments.IMPLANT))) mask |= BIT_SANDEVISTAN;
         if (HandImplantSlot.isHandImplant(p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_1))) mask |= BIT_HAND_LEFT;
         if (HandImplantSlot.isHandImplant(p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_2))) mask |= BIT_HAND_RIGHT;
+        if (p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_1).is(ModItems.BLADE_LEFT)) mask |= BIT_BLADE_LEFT;
+        if (p.getAttachedOrCreate(ModAttachments.HAND_IMPLANT_2).is(ModItems.BLADE_RIGHT)) mask |= BIT_BLADE_RIGHT;
         if (HeadImplantSlot.hasNeuroInterfaceRaw(p)) mask |= BIT_NEURO;
         ItemStack chip = p.getAttachedOrCreate(ModAttachments.CHIP);
         if (chip.is(ModItems.CHIP_OVERTIME)) mask |= BIT_CHIP_OVERTIME;
-        if (chip.is(ModItems.CHIP_HACK)) mask |= BIT_CHIP_HACK;
+        if (NeuroChips.isHackChip(chip)) mask |= BIT_CHIP_HACK;
         return mask;
     }
 
@@ -67,7 +71,8 @@ public final class HackManager {
         for (ServerPlayer other : server.getPlayerList().getPlayers()) {
             if (!isValidTarget(player, other)) continue;
             if (data.length() > 0) data.append('\n');
-            data.append(other.getName().getString()).append('\t').append(implantMask(other));
+            data.append(other.getName().getString()).append('\t').append(implantMask(other))
+                    .append('\t').append(SoftwareSlot.ledLevel(other)); // уровень Л.Е.Д цели (0 — нет): от него зависит босс
         }
         ServerPlayNetworking.send(player, new HackListPayload(data.toString()));
     }
@@ -79,6 +84,8 @@ public final class HackManager {
         if (!isValidTarget(player, target)) return;
         SandevistanManager.startHackCooldown(player);
         PENDING.put(player.getUUID(), new Pending(targetName, player.level().getGameTime() + PENDING_TICKS));
+        // Л.Е.Д предупреждает владельца сразу, как только началась попытка (а не только после провала).
+        if (SoftwareSlot.ledLevel(target) > 0) ServerPlayNetworking.send(target, new HackWarningPayload());
     }
 
     private static void result(ServerPlayer player, boolean success) {
@@ -89,8 +96,10 @@ public final class HackManager {
         if (target == null) return;
         if (success) {
             target.setAttached(ModAttachments.HACKED_UNTIL, target.level().getGameTime() + DISABLE_TICKS);
+            SandevistanManager.onHacked(target); // в постоянном киберпсихозе контроль вернётся, шкала упадёт до 80
         } else {
-            ServerPlayNetworking.send(target, new HackWarningPayload()); // только предупреждение, без ника взломщика
+            // Только предупреждение, без ника взломщика. Если у цели Л.Е.Д, она уже получила его в начале попытки.
+            if (SoftwareSlot.ledLevel(target) == 0) ServerPlayNetworking.send(target, new HackWarningPayload());
         }
     }
 }

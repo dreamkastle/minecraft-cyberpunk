@@ -3,9 +3,12 @@
     "package": "com.smi7i.sandevistan.mixin",
     "compatibilityLevel": "JAVA_25",
     "mixins": [
+       "AbstractContainerMenuBladeLockMixin",
        "AbstractContainerMenuInvoker",
        "AvatarMechDimensionsMixin",
+       "InventoryBladeLockMixin",
        "InventoryMenuMixin",
+       "ItemStackBladeUseMixin",
        "LivingEntityDamageMixin",
        "LivingEntityPushMixin",
        "ServerCreativeImplantMixin",

@@ -21,7 +21,8 @@ import net.minecraft.world.phys.AABB;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * Нейро интерфейс (имплант головы). Клавиша K включает список в углу экрана: все живые существа в радиусе 20 блоков
+ * Нейро интерфейс (имплант головы). У ПРОДВИНУТОГО интерфейса клавиша K открывает полноэкранный экран (AdvancedNeuroScreen),
+ * а у обычного включает список в углу экрана: все живые существа в радиусе 20 блоков
  * с именем, здоровьем и дистанцией, а у игроков с таким же интерфейсом — значок NI. Заготовка под будущие нейро импланты.
  */
 public final class NeuroHud {
@@ -51,9 +52,14 @@ public final class NeuroHud {
             ENTRIES.clear();
             return;
         }
-        boolean has = HeadImplantSlot.hasNeuroInterface(mc.player);
+        boolean advanced = HeadImplantSlot.hasAdvancedNeuro(mc.player);
+        boolean has = HeadImplantSlot.hasNeuroInterface(mc.player) && !advanced; // маленький список — только у обычного
         while (toggle.consumeClick()) {
-            if (has) on = !on;
+            if (advanced) {
+                if (mc.gui.screen() == null) mc.gui.setScreen(new AdvancedNeuroScreen());
+            } else if (has) {
+                on = !on;
+            }
         }
         if (!has) on = false; // сняли имплант — интерфейс гаснет
         if (!on) {
