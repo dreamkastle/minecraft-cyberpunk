@@ -105,6 +105,9 @@ public class ClientSandevistanState {
         prevTint = tint;
         if (active) {
             tint = 1.0F;
+        } else if (ClientZones.localInZone()) {
+            // Игрок попал в зону чужого Сандевистана: мир для него выглядит так же, как для владельца (тот же фильтр).
+            tint = Math.min(1.0F, tint + 0.25F);
         } else if (holdTicks > 0) {
             // Зелёный растёт вместе с зажатием V: к моменту включения уже полный.
             tint = Math.max(tint, chargeProgress());

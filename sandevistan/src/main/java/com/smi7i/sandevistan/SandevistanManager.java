@@ -162,6 +162,12 @@ public class SandevistanManager {
         return s != null && s.psychosisTicks > 0;
     }
 
+    /** Надет ли у игрока (и работает ли) админский бесконечный Сандевистан. */
+    public static boolean isAdminSandevistan(ServerPlayer player) {
+        return player.getAttachedOrCreate(ModAttachments.IMPLANT).is(ModItems.ADMIN_SANDEVISTAN)
+                && !HackState.implantsOff(player);
+    }
+
     /** Шкала киберпсихоза игрока в десятых долях единицы (0..LOAD_MAX). */
     public static int getLoad(ServerPlayer player) {
         State s = STATES.get(player.getUUID());
@@ -205,6 +211,7 @@ public class SandevistanManager {
 
     /** То же, но запоминаем, что эту часть шкалы добавил имплант key: снимут его — вычтется. */
     private static boolean addLoadTracked(ServerPlayer player, State s, int key, int tenths) {
+        if (key == K_SAND && isAdminSandevistan(player)) return false; // админский Сандевистан не даёт нагрузки
         if (s.psychosisTicks > 0 || tenths <= 0) return false;
         int added = resist(player, s, tenths);
         if (added <= 0) return false;
@@ -430,7 +437,7 @@ public class SandevistanManager {
 
     private static boolean hasImplant(ServerPlayer player) {
         // Взломанный игрок (чип «Взлом» у другого) временно остаётся без Сандевистана.
-        return ImplantSlot.isImplant(player.getAttachedOrCreate(ModAttachments.IMPLANT)) && !HackState.isHacked(player);
+        return ImplantSlot.isImplant(player.getAttachedOrCreate(ModAttachments.IMPLANT)) && !HackState.implantsOff(player);
     }
 
     /** Достать клинки богомола или убрать (клавиша M). Каждый доставленный клинок даёт +3 к шкале киберпсихоза (носить — бесплатно). */
@@ -572,7 +579,8 @@ public class SandevistanManager {
                 applyWorldEffects(player, age);
             }
 
-            s.ticksLeft--;
+            // Админский Сандевистан бесконечный: время не убывает, перегрева и конца нет.
+            if (isAdminSandevistan(player)) s.ticksLeft = durationFor(s); else s.ticksLeft--;
             if (s.ticksLeft <= 0 && s.forced) {
                 // Конец «Последнего боя»: просто выключается, без перегрева и паузы.
                 s.active = false;

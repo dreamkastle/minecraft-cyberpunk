@@ -34,5 +34,9 @@
   "item.sandevistan.advanced_neuro_interface": "Продвинутый нейро интерфейс",
   "item.sandevistan.led_1": "Л.Е.Д Mk.I",
   "item.sandevistan.led_2": "Л.Е.Д Mk.II",
-  "item.sandevistan.led_3": "Л.Е.Д Mk.III"
+  "item.sandevistan.led_3": "Л.Е.Д Mk.III",
+  "item.sandevistan.led_4": "Л.Е.Д Mk.IV",
+  "item.sandevistan.admin_sandevistan": "Админский Сандевистан",
+  "item.sandevistan.chip_hack_1": "Чип «Взлом» Мк 1",
+  "item.sandevistan.chip_hack_2": "Чип «Взлом» Мк 2"
 }

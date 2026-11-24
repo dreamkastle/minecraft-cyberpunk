@@ -1,3 +1,6 @@
 {
-  "values": ["sandevistan:sandevistan"]
+  "values": [
+    "sandevistan:sandevistan",
+    "sandevistan:admin_sandevistan"
+  ]
 }

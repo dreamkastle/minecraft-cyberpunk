@@ -17,7 +17,20 @@ public final class NeuroChips {
         if (!HeadImplantSlot.hasNeuroInterface(player)) return NONE;
         ItemStack chip = player.getAttachedOrCreate(ModAttachments.CHIP);
         if (chip.is(ModItems.CHIP_OVERTIME)) return OVERTIME;
-        if (chip.is(ModItems.CHIP_HACK)) return HACK;
+        if (isHackChip(chip)) return HACK;
         return NONE;
+    }
+
+    /** Любой из чипов «Взлом»: базовый, Мк 1 или Мк 2. */
+    public static boolean isHackChip(ItemStack chip) {
+        return chip.is(ModItems.CHIP_HACK) || chip.is(ModItems.CHIP_HACK_1) || chip.is(ModItems.CHIP_HACK_2);
+    }
+
+    /** Уровень чипа «Взлом» у игрока: 0 — базовый, 1 — Мк 1, 2 — Мк 2; -1 — чипа взлома нет. */
+    public static int hackTier(Player player) {
+        ItemStack chip = player.getAttachedOrCreate(ModAttachments.CHIP);
+        if (chip.is(ModItems.CHIP_HACK_2)) return 2;
+        if (chip.is(ModItems.CHIP_HACK_1)) return 1;
+        return chip.is(ModItems.CHIP_HACK) ? 0 : -1;
     }
 }

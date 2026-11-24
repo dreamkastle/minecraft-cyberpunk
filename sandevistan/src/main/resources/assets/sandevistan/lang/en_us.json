@@ -34,5 +34,9 @@
   "item.sandevistan.advanced_neuro_interface": "Advanced Neural Interface",
   "item.sandevistan.led_1": "I.C.E. Mk.I",
   "item.sandevistan.led_2": "I.C.E. Mk.II",
-  "item.sandevistan.led_3": "I.C.E. Mk.III"
+  "item.sandevistan.led_3": "I.C.E. Mk.III",
+  "item.sandevistan.led_4": "I.C.E. Mk.IV",
+  "item.sandevistan.admin_sandevistan": "Admin Sandevistan",
+  "item.sandevistan.chip_hack_1": "Hack Chip Mk 1",
+  "item.sandevistan.chip_hack_2": "Hack Chip Mk 2"
 }

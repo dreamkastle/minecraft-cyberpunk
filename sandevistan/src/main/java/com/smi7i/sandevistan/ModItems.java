@@ -155,6 +155,42 @@ public class ModItems {
             new Item(new Item.Properties().setId(LED_3_KEY).stacksTo(1))
     );
 
+    // Чипы «Взлом» Мк 1 и Мк 2 (обычный чип без приписки — базовый).
+    // Мк 1: бой с боссом короче на 10 секунд. Мк 2: цель без Л.Е.Д взламывается мгновенно, у цели с Л.Е.Д Mk.I бой короче на 20 секунд.
+    public static final ResourceKey<Item> CHIP_HACK_1_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("chip_hack_1"));
+    public static final Item CHIP_HACK_1 = Registry.register(
+            BuiltInRegistries.ITEM,
+            CHIP_HACK_1_KEY,
+            new Item(new Item.Properties().setId(CHIP_HACK_1_KEY).stacksTo(1))
+    );
+    public static final ResourceKey<Item> CHIP_HACK_2_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("chip_hack_2"));
+    public static final Item CHIP_HACK_2 = Registry.register(
+            BuiltInRegistries.ITEM,
+            CHIP_HACK_2_KEY,
+            new Item(new Item.Properties().setId(CHIP_HACK_2_KEY).stacksTo(1))
+    );
+
+    // Л.Е.Д Mk.IV: «полуадминская» защита от брейнданса — до 120 пуль и толстые лазеры (творческое меню).
+    public static final ResourceKey<Item> LED_4_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("led_4"));
+    public static final Item LED_4 = Registry.register(
+            BuiltInRegistries.ITEM,
+            LED_4_KEY,
+            new Item(new Item.Properties().setId(LED_4_KEY).stacksTo(1))
+    );
+
+    // Админский Сандевистан: бесконечный. В творческом меню его нет — выдаётся только командой
+    // (/give @s sandevistan:admin_sandevistan).
+    public static final ResourceKey<Item> ADMIN_SANDEVISTAN_KEY =
+            ResourceKey.create(Registries.ITEM, Sandevistan.id("admin_sandevistan"));
+    public static final Item ADMIN_SANDEVISTAN = Registry.register(
+            BuiltInRegistries.ITEM,
+            ADMIN_SANDEVISTAN_KEY,
+            new Item(new Item.Properties().setId(ADMIN_SANDEVISTAN_KEY).stacksTo(1))
+    );
+
     // Вызывается из Sandevistan.onInitialize(), чтобы класс загрузился и предмет зарегистрировался.
     public static void init() {
         // Имплант во вкладке «Бой» творческого режима.
@@ -168,6 +204,8 @@ public class ModItems {
                     output.accept(new ItemStack(MECH_REMOTE), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(CHIP_OVERTIME), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(CHIP_HACK), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    output.accept(new ItemStack(CHIP_HACK_1), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    output.accept(new ItemStack(CHIP_HACK_2), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(BLADE_LEFT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(BLADE_RIGHT), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(ARMOR_IMPLANT_1), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
@@ -176,6 +214,7 @@ public class ModItems {
                     output.accept(new ItemStack(LED_1), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(LED_2), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                     output.accept(new ItemStack(LED_3), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                    output.accept(new ItemStack(LED_4), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
                 });
     }
 }

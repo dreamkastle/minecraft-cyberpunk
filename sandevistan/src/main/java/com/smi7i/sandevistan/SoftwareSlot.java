@@ -28,16 +28,18 @@ public class SoftwareSlot extends Slot {
         return stack.is(SOFTWARE);
     }
 
-    /** Уровень Л.Е.Д в стопке: 1..3, 0 — это не Л.Е.Д. */
+    /** Уровень Л.Е.Д в стопке: 1..4, 0 — это не Л.Е.Д. */
     public static int ledLevel(ItemStack stack) {
         if (stack.is(ModItems.LED_1)) return 1;
         if (stack.is(ModItems.LED_2)) return 2;
         if (stack.is(ModItems.LED_3)) return 3;
+        if (stack.is(ModItems.LED_4)) return 4;
         return 0;
     }
 
     /** Уровень Л.Е.Д, установленного у игрока в слоте П.О (0 — нет). */
     public static int ledLevel(Player player) {
+        if (HackState.implantsOff(player)) return 0; // без нейро интерфейса программа не работает
         return ledLevel(player.getAttachedOrCreate(ModAttachments.SOFTWARE));
     }
 

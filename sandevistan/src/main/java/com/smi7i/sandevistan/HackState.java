@@ -10,6 +10,14 @@ public final class HackState {
         return player.level().getGameTime() < player.getAttachedOrCreate(ModAttachments.HACKED_UNTIL);
     }
 
+    /**
+     * Отключены ли у игрока все импланты: он взломан или у него нет нейро интерфейса (хотя бы обычного).
+     * Без нейро интерфейса не работают ни Сандевистан, ни импланты рук, ни броня, ни программы; чипы и так требуют его.
+     */
+    public static boolean implantsOff(Player player) {
+        return isHacked(player) || !HeadImplantSlot.hasNeuroInterfaceRaw(player);
+    }
+
     /** Сколько тиков ещё отключены импланты (0, если не взломан). */
     public static int remainingTicks(Player player) {
         long left = player.getAttachedOrCreate(ModAttachments.HACKED_UNTIL) - player.level().getGameTime();

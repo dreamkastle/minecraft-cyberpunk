@@ -53,7 +53,7 @@ public final class HackManager {
         if (HeadImplantSlot.hasNeuroInterfaceRaw(p)) mask |= BIT_NEURO;
         ItemStack chip = p.getAttachedOrCreate(ModAttachments.CHIP);
         if (chip.is(ModItems.CHIP_OVERTIME)) mask |= BIT_CHIP_OVERTIME;
-        if (chip.is(ModItems.CHIP_HACK)) mask |= BIT_CHIP_HACK;
+        if (NeuroChips.isHackChip(chip)) mask |= BIT_CHIP_HACK;
         return mask;
     }
 
